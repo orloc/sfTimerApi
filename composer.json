@@ -26,7 +26,7 @@
         "predis/service-provider": "^2.0"
     },
     "autoload": {
-        "psr-0": { "": "src/" }
+        "psr-0": { "EQT": "src/" }
     },
     "extra": {
         "branch-alias": {
