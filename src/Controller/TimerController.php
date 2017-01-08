@@ -2,6 +2,7 @@
 namespace EQT\Controller;
 
 use EQT\Entity\Timer;
+use Monolog\Handler\Curl\Util;
 use Silex\Application;
 use Silex\Api\ControllerProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,8 +37,16 @@ class TimerController implements ControllerProviderInterface {
     }
     
     public function get(Request $request){
+        $timers = array_map(function($timeJson) {
+            $time = json_decode($timeJson, true);
+            return Utility::mapRequest($time, new Timer());
+        }, $this->redis->hgetall(Timer::$redisKey));
+
+        $json = $this->app['serializer']->serialize($timers, 'json');
+
+        return Utility::JsonResponse($json, 200);
     }
-    
+
     public function getBy(Request $request){
         
     }
@@ -52,7 +61,6 @@ class TimerController implements ControllerProviderInterface {
 
         $json = $this->app['serializer']->serialize($object, 'json');
         
-        $this->redis->del(Timer::$redisKey);
         if ($this->redis->hexists(Timer::$redisKey, $object->getLabel())){
             $this->app->abort(403, 'Duplicate timer in set');
         }
