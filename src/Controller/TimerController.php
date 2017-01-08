@@ -1,6 +1,7 @@
 <?php
 namespace EQT\Controller;
 
+use EQT\Entity\Timer;
 use Silex\Application;
 use Silex\Api\ControllerProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,9 +13,11 @@ use EQT\Utility;
  */
 class TimerController implements ControllerProviderInterface {
     protected $app;
+    protected $redis;
     
     public function __construct(Application $app){
         $this->app = $app;
+        $this->redis = $app['predis'];
     }
     /**
      * @param Application $app
@@ -33,7 +36,6 @@ class TimerController implements ControllerProviderInterface {
     }
     
     public function get(Request $request){
-        
     }
     
     public function getBy(Request $request){
@@ -41,7 +43,27 @@ class TimerController implements ControllerProviderInterface {
     }
     
     public function create(Request $request){
+        $object = Utility::mapRequest($request->request->all(), new Timer());        
+        $errors = Utility::handleValidationErrors($this->app['validator']->validate($object));
+
+        if ($errors) {
+            $this->app->abort(400, $errors);
+        }
+
+        $json = $this->app['serializer']->serialize($object, 'json');
         
+        $this->redis->del(Timer::$redisKey);
+        if ($this->redis->hexists(Timer::$redisKey, $object->getLabel())){
+            $this->app->abort(403, 'Duplicate timer in set');
+        }
+        
+        $res = $this->redis->hset(Timer::$redisKey, $object->getLabel(), $json);
+        
+        if (!$res){
+           $this->app->abort(500, 'Unable to add item to redis index'); 
+        }
+        
+        return Utility::JsonResponse($json, 200);
     }
     
     public function update(Request $request){
