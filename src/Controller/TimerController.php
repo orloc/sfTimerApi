@@ -57,30 +57,22 @@ class TimerController implements ControllerProviderInterface {
     }
     
     public function create(Request $request){
-        $object = Utility::mapRequest($request->request->all(), new Timer());        
-        $errors = Utility::handleValidationErrors($this->app['validator']->validate($object));
-
-        if ($errors) {
-            $this->app->abort(400, $errors);
-        }
-
-        $json = $this->app['serializer']->serialize($object, 'json');
-        
-        if ($this->redis->hexists(Timer::$redisKey, $object->getLabel())){
-            $this->app->abort(403, 'Duplicate timer in set');
-        }
-        
-        $res = $this->redis->hset(Timer::$redisKey, $object->getLabel(), $json);
-        
-        if (!$res){
-           $this->app->abort(500, 'Unable to add item to redis index'); 
-        }
+        $json = $this->doUpdate($request, true);
         
         return Utility::JsonResponse($json, 200);
     }
     
-    public function update(Request $request){
+    public function update(Request $request, $id){
+        $parsedId = str_replace('_', ' ', $id);
+        $timer = $this->redis->hget(Timer::$redisKey, $parsedId);
+
+        if (!$timer){
+            $this->app->abort(404, "Timer {$id} not found");
+        }
         
+        $json = $this->doUpdate($request);
+
+        return Utility::JsonResponse($json, 200);
     }
     
     public function delete(Request $request, $id){
@@ -94,5 +86,31 @@ class TimerController implements ControllerProviderInterface {
             $this->app->abort(500, "Unable to delete {$id}");
         }
         return Utility::JsonResponse('', 200);
+    }
+    
+    protected function doUpdate(Request $request, $create = false){
+        $object = Utility::mapRequest($request->request->all(), new Timer());
+        $errors = Utility::handleValidationErrors($this->app['validator']->validate($object));
+
+        if ($errors) {
+        $this->app->abort(400, $errors);
+        }
+
+        $json = $this->app['serializer']->serialize($object, 'json');
+
+        
+        if ($create){
+            if ($this->redis->hexists(Timer::$redisKey, $object->getLabel())){
+                $this->app->abort(403, 'Duplicate timer in set');
+            }
+        }
+
+        $res = $this->redis->hset(Timer::$redisKey, $object->getLabel(), $json);
+
+        if (!$res){
+            $this->app->abort(500, 'Unable to add item to redis index');
+        }
+        
+        return $json;
     }
 }
