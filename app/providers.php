@@ -7,6 +7,7 @@ use Silex\Provider\HttpFragmentServiceProvider;
 use Silex\Provider\SerializerServiceProvider;
 use Silex\Provider\ValidatorServiceProvider;
 use Predis\Silex\ClientServiceProvider;
+use JDesrosiers\Silex\Provider\CorsServiceProvider;
 
 $app->register(new ServiceControllerServiceProvider());
 $app->register(new AssetServiceProvider());
@@ -22,3 +23,7 @@ $app->register(new ClientServiceProvider(), [
         'profile' => '3.0',
     ],
 ]);
+
+$app->register(new CorsServiceProvider(), array(
+    "cors.allowOrigin" => "*",
+));

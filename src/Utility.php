@@ -46,7 +46,10 @@ class Utility {
     
     public static function JsonResponse($data, $code) {
         return new Response($data, $code, [
-            'Content-Type' => 'application/json'
+            'Content-Type' => 'application/json',
+            'Access-Control-Allow-Headers' => 'Content-Type',
+            'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Origin' => '*'
         ]);
     }
 }

@@ -98,7 +98,7 @@ class TimerController implements ControllerProviderInterface {
         
         if ($create){
             if ($this->redis->hexists(Timer::$redisKey, $object->getLabel())){
-                $this->app->abort(403, 'Duplicate timer in set');
+                $this->app->abort(409, 'Duplicate timer in set');
             }
         }
 

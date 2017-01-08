@@ -8,8 +8,6 @@ class Timer {
     
     public static $redisKey = 'eqt:entity:timer';
 
-    protected $start_time;
-
     protected $duration;
 
     protected $reset_count;
@@ -23,19 +21,8 @@ class Timer {
     }
     
     static public function loadValidatorMetadata(ClassMetadata $metadata){
-        $metadata->addPropertyConstraints('start_time', [new Assert\Time()]);
         $metadata->addPropertyConstraints('duration',[new Assert\NotBlank()]);
-        $metadata->addPropertyConstraints('reset_count',[new Assert\NotBlank()]);
         $metadata->addPropertyConstraints('label',[new Assert\NotBlank()]);
-    }
-    
-    public function getStartTime(){
-        return $this->start_time;
-    }
-    
-    public function setStartTime($time){
-        $this->start_time = $time;
-        return $this;
     }
     
     public function getDuration(){

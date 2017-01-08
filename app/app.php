@@ -13,6 +13,8 @@ require __DIR__ .'/config/dev.php';
 require __DIR__.'/middleware.php';
 require __DIR__.'/routes.php';
 
+$app->after($app["cors"]);
+
 $app->error(function (\Exception $e, Request $request, $code) use ($app) {
     return $app->json(Utility::formatError($e->getMessage(), $code));
 });
