@@ -79,7 +79,7 @@ class TimerController implements ControllerProviderInterface {
             $this->app->abort(404, "Timer {$id} not found");
         }
         
-        if (!$this->redis->hdel(Timer::$redisKey, $parsedId)) {
+        if (!$this->redis->hdel(Timer::$redisKey, str_replace('_',' ',$id))) {
             $this->app->abort(500, "Unable to delete {$id}");
         }
         return Utility::JsonResponse('', 200);
