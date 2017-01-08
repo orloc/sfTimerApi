@@ -63,9 +63,7 @@ class TimerController implements ControllerProviderInterface {
     }
     
     public function update(Request $request, $id){
-        $parsedId = str_replace('_', ' ', $id);
-        $timer = $this->redis->hget(Timer::$redisKey, $parsedId);
-
+        $timer = $this->findKeyFromId($id);
         if (!$timer){
             $this->app->abort(404, "Timer {$id} not found");
         }
@@ -76,8 +74,7 @@ class TimerController implements ControllerProviderInterface {
     }
     
     public function delete(Request $request, $id){
-        $parsedId = str_replace('_', ' ', $id);
-        $timer = $this->redis->hget(Timer::$redisKey, $parsedId);
+        $timer = $this->findKeyFromId($id);
         if (!$timer){
             $this->app->abort(404, "Timer {$id} not found");
         }
@@ -112,5 +109,10 @@ class TimerController implements ControllerProviderInterface {
         }
         
         return $json;
+    }
+
+    protected function findKeyFromId($id) {
+        $parsedId = str_replace('_', ' ', $id);
+        return $this->redis->hget(Timer::$redisKey, $parsedId);
     }
 }
