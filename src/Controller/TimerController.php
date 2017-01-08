@@ -30,7 +30,7 @@ class TimerController implements ControllerProviderInterface {
         
         $controllers->post(Utility::formatRoute('timer'), [$this,'create']);
         $controllers->patch(Utility::formatRoute('timer/{id}'), [$this, 'update']);
-        $controllers->delete(Utility::formatRoute('timer/{id}'), [$this, 'remove']);
+        $controllers->delete(Utility::formatRoute('timer/{id}'), [$this, 'delete']);
         
         return $controllers;
     }
