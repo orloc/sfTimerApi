@@ -2,7 +2,6 @@
 namespace EQT\Controller;
 
 use EQT\Entity\Timer;
-use Monolog\Handler\Curl\Util;
 use Silex\Application;
 use Silex\Api\ControllerProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,18 +36,24 @@ class TimerController implements ControllerProviderInterface {
     }
     
     public function get(Request $request){
-        $timers = array_map(function($timeJson) {
-            $time = json_decode($timeJson, true);
-            return Utility::mapRequest($time, new Timer());
-        }, $this->redis->hgetall(Timer::$redisKey));
+        $timers = array_values(array_map(function($timeJson) {
+            return $this->app['serializer']->deserialize($timeJson, 'EQT\Entity\Timer', 'json');
+        }, $this->redis->hgetall(Timer::$redisKey)));
 
         $json = $this->app['serializer']->serialize($timers, 'json');
 
         return Utility::JsonResponse($json, 200);
     }
 
-    public function getBy(Request $request){
+    public function getBy(Request $request, $id){
+        $parsedId = str_replace('_', ' ', $id);
+        $timer = $this->redis->hget(Timer::$redisKey, $parsedId);
         
+        if (!$timer){
+            $this->app->abort(404, "Timer {$id} not found");
+        }
+        
+        return Utility::JsonResponse($timer, 200);
     }
     
     public function create(Request $request){
@@ -78,7 +83,16 @@ class TimerController implements ControllerProviderInterface {
         
     }
     
-    public function delete(Request $request){
+    public function delete(Request $request, $id){
+        $parsedId = str_replace('_', ' ', $id);
+        $timer = $this->redis->hget(Timer::$redisKey, $parsedId);
+        if (!$timer){
+            $this->app->abort(404, "Timer {$id} not found");
+        }
         
+        if (!$this->redis->hdel(Timer::$redisKey, $parsedId)) {
+            $this->app->abort(500, "Unable to delete {$id}");
+        }
+        return Utility::JsonResponse('', 200);
     }
 }
