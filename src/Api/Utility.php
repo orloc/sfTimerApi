@@ -1,9 +1,9 @@
 <?php
-namespace EQT;
+namespace EQT\Api;
+
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\Validator\ConstraintViolationList;
-
 
 class Utility {
     

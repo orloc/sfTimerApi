@@ -11,6 +11,8 @@ $app['debug'] = true;
 
 $app->register(new MonologServiceProvider(), array(
     'monolog.logfile' => __DIR__.'/../../var/logs/silex_dev.log',
+    'monolog.level' => 'INFO',
+    'monolog.name' => 'eqt'
 ));
 
 $app->register(new WebProfilerServiceProvider(), array(

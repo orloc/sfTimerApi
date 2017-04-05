@@ -3,7 +3,7 @@
  * Routing Definitions
  */
 
-$controller = new \EQT\Controller\TimerController($app);
+$controller = new \EQT\Api\Controller\TimerController($app);
 
 $factory = $controller->connect($app);
 

@@ -1,5 +1,5 @@
 <?php
-namespace EQT\Entity;
+namespace EQT\Api\Entity;
 
 use Symfony\Component\Validator\Mapping\ClassMetadata;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -11,6 +11,8 @@ class Timer {
     protected $duration;
 
     protected $reset_count;
+    
+    protected $last_tick;
 
     protected $label;
     
@@ -49,6 +51,15 @@ class Timer {
     
     public function setLabel($label){
         $this->label = $label;
+        return $this;
+    }
+    
+    public function getLastTick(){
+        return $this->last_tick; 
+    }
+    
+    public function setLastTick($lastTick){
+        $this->last_tick = $lastTick;
         return $this;
     }
     

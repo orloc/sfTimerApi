@@ -1,12 +1,12 @@
 <?php
-namespace EQT\Controller;
+namespace EQT\Api\Controller;
 
-use EQT\Entity\Timer;
+use EQT\Api\Entity\Timer;
 use Silex\Application;
 use Silex\Api\ControllerProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints as Assert;
-use EQT\Utility;
+use EQT\Api\Utility;
 /**
  * Class MainController
  * @package Webview\Controller
@@ -37,7 +37,7 @@ class TimerController implements ControllerProviderInterface {
     
     public function get(Request $request){
         $timers = array_values(array_map(function($timeJson) {
-            return $this->app['serializer']->deserialize($timeJson, 'EQT\Entity\Timer', 'json');
+            return $this->app['serializer']->deserialize($timeJson, 'EQT\Api\Entity\Timer', 'json');
         }, $this->redis->hgetall(Timer::$redisKey)));
 
         $json = $this->app['serializer']->serialize($timers, 'json');
@@ -82,7 +82,7 @@ class TimerController implements ControllerProviderInterface {
         if (!$this->redis->hdel(Timer::$redisKey, str_replace('_',' ',$id))) {
             $this->app->abort(500, "Unable to delete {$id}");
         }
-        return Utility::JsonResponse('', 200);
+        return Utility::JsonResponse(json_encode([ 'id' => $id ]), 200);
     }
     
     protected function doUpdate(Request $request, $create = false){

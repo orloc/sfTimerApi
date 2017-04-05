@@ -31,3 +31,4 @@ $app->before(function(Request $request, Application $app) {
         $app['predis']->connect();
     }
 });
+
