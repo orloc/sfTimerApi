@@ -44,15 +44,17 @@ class Utility {
         }
     }
     
-    public static function JsonResponse($data, $code) {
-        try {
-            $json = json_encode($data);
-        } catch(\Exception $e) {
-            $json = json_encode($e->getMessage());
-            $code = 500;
+    public static function JsonResponse($data, $code, $serialize = true) {
+        if ($serialize) {
+            try {
+                $json = json_encode($data);
+            } catch(\Exception $e) {
+                $json = json_encode($e->getMessage());
+                $code = 500;
+            }
         }
 
-        return new Response($json, $code, [
+        return new Response(isset($json) ? $json  : $data, $code, [
             'Content-Type' => 'application/json',
             'Access-Control-Allow-Headers' => 'Content-Type',
             'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS',

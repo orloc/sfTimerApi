@@ -36,13 +36,7 @@ class TimerController implements ControllerProviderInterface {
     }
 
     public function get(Request $request){
-        $timers = array_map(function($timeJson) {
-            return $this->app['serializer']->deserialize($timeJson, Timer::class, 'json');
-        }, Timer::all($this->db));
-
-        $json = $this->app['serializer']->serialize($timers, 'json');
-
-        return Utility::JsonResponse($json, 200);
+        return Utility::JsonResponse(Timer::all($this->db), 200);
     }
 
     public function getBy(Request $request, $id){
@@ -56,15 +50,25 @@ class TimerController implements ControllerProviderInterface {
     }
 
     public function create(Request $request){
-        $timer = $this->validateInput($request, new Timer());
+        $timer = $this->validateInput($request->request->all(), new Timer());
+        
+        $timer->save($this->db);
 
-        var_dump($timer);
-        die;
+        return Utility::JsonResponse($timer->__toString(), 200);
 
     }
 
     public function update(Request $request, $id){
+        if (!Timer::hasItem($this->db, $id)) {
+            $this->app->abort(404, "Timer {$id} not found");
+        }
+        
+        $timer = $this->validateInput(array_merge($request->request->all(), [ 'id' => $id])
+            , new Timer());
 
+        $timer->update($this->db);
+
+        return Utility::JsonResponse($timer->__toString(), 200);
     }
 
     public function delete(Request $request, $id){
@@ -77,8 +81,8 @@ class TimerController implements ControllerProviderInterface {
         return Utility::JsonResponse([ 'id' => $id ], 200);
     }
 
-    protected function validateInput(Request $request, $object){
-        $object = Utility::mapRequest($request->request->all(), $object);
+    protected function validateInput(Array $body, $object){
+        $object = Utility::mapRequest($body, $object);
         $errors = Utility::handleValidationErrors($this->app['validator']->validate($object));
 
         if ($errors) {
