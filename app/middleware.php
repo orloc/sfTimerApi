@@ -26,9 +26,3 @@ $app->before(function(Request $request, Application $app){
     }
 });
 
-$app->before(function(Request $request, Application $app) {
-    if (strpos($request->attributes->get('_route'), 'api')){
-        $app['predis']->connect();
-    }
-});
-

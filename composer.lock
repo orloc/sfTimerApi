@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "4fb28b583f5c08fd06e4d235d74f28f8",
-    "content-hash": "68fddfca6cb9952e53c4307d33507876",
+    "hash": "9ff16c0af872944b50379a293a1639d9",
+    "content-hash": "34d2c529af6e7d52cf4c32488065f672",
     "packages": [
         {
             "name": "cboden/ratchet",
@@ -54,6 +54,50 @@
                 "sockets"
             ],
             "time": "2017-01-06 14:36:36"
+        },
+        {
+            "name": "cnam/security-jwt-service-provider",
+            "version": "2.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cnam/security-jwt-service-provider.git",
+                "reference": "6008eb8188674c17606c9c05ce31b9a451084906"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cnam/security-jwt-service-provider/zipball/6008eb8188674c17606c9c05ce31b9a451084906",
+                "reference": "6008eb8188674c17606c9c05ce31b9a451084906",
+                "shasum": ""
+            },
+            "require": {
+                "firebase/php-jwt": "^4.0",
+                "pimple/pimple": "3.0.*",
+                "symfony/security": "~2.8|~3.0"
+            },
+            "require-dev": {
+                "silex/silex": "dev-master"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Silex\\Provider\\": "src/Silex/Provider/",
+                    "Silex\\Component\\Security\\Http\\": "src/Silex/Component/Security/Http/",
+                    "Silex\\Component\\Security\\Core\\": "src/Silex/Component/Security/Core/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "Anton Popov",
+                    "email": "cnam812@gmail.com"
+                },
+                {
+                    "name": "V",
+                    "email": "v.tyubek@gmail.com"
+                }
+            ],
+            "description": "Service Provider for usage jwt token for auth",
+            "time": "2017-02-09 06:24:49"
         },
         {
             "name": "doctrine/annotations",
@@ -624,6 +668,49 @@
                 "event-emitter"
             ],
             "time": "2012-11-02 14:49:47"
+        },
+        {
+            "name": "firebase/php-jwt",
+            "version": "v4.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/firebase/php-jwt.git",
+                "reference": "dccf163dc8ed7ed6a00afc06c51ee5186a428d35"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/firebase/php-jwt/zipball/dccf163dc8ed7ed6a00afc06c51ee5186a428d35",
+                "reference": "dccf163dc8ed7ed6a00afc06c51ee5186a428d35",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Firebase\\JWT\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Neuman Vong",
+                    "email": "neuman+pear@twilio.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Anant Narayanan",
+                    "email": "anant@php.net",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A simple library to encode and decode JSON Web Tokens (JWT) in PHP. Should conform to the current spec.",
+            "homepage": "https://github.com/firebase/php-jwt",
+            "time": "2016-07-18 04:51:16"
         },
         {
             "name": "guzzle/common",
@@ -4300,16 +4387,16 @@
         },
         {
             "name": "symfony/security",
-            "version": "v3.0.9",
+            "version": "v3.2.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/security.git",
-                "reference": "e00948e5ae59fb98477b8b9868aa00646e8d5e23"
+                "reference": "95199ced4d4b79b96dd257350f88d56497bc15f3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/security/zipball/e00948e5ae59fb98477b8b9868aa00646e8d5e23",
-                "reference": "e00948e5ae59fb98477b8b9868aa00646e8d5e23",
+                "url": "https://api.github.com/repos/symfony/security/zipball/95199ced4d4b79b96dd257350f88d56497bc15f3",
+                "reference": "95199ced4d4b79b96dd257350f88d56497bc15f3",
                 "shasum": ""
             },
             "require": {
@@ -4332,10 +4419,10 @@
                 "psr/log": "~1.0",
                 "symfony/expression-language": "~2.8|~3.0",
                 "symfony/finder": "~2.8|~3.0",
-                "symfony/ldap": "~2.8|~3.0",
+                "symfony/ldap": "~3.1",
                 "symfony/polyfill-intl-icu": "~1.0",
                 "symfony/routing": "~2.8|~3.0",
-                "symfony/validator": "~2.8|~3.0"
+                "symfony/validator": "^2.8.18|^3.2.5"
             },
             "suggest": {
                 "symfony/expression-language": "For using the expression voter",
@@ -4347,7 +4434,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.0-dev"
+                    "dev-master": "3.2-dev"
                 }
             },
             "autoload": {
@@ -4374,7 +4461,7 @@
             ],
             "description": "Symfony Security Component",
             "homepage": "https://symfony.com",
-            "time": "2016-07-17 13:54:30"
+            "time": "2017-04-04 15:30:56"
         },
         {
             "name": "symfony/serializer",

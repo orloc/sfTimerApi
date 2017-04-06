@@ -19,7 +19,7 @@
         "symfony/form": "~2.8|3.0.*",
         "symfony/monolog-bridge": "~2.8|3.0.*",
         "symfony/process": "~2.8|3.0.*",
-        "symfony/security": "~2.8|3.0.*",
+        "symfony/security": "^3.2",
         "symfony/translation": "~2.8|3.0.*",
         "symfony/twig-bridge": "~2.8|3.0.*",
         "symfony/validator": "~2.8|3.0.*",
@@ -29,7 +29,8 @@
         "jdesrosiers/silex-cors-provider": "~1.0",
         "cboden/ratchet": "^0.3.6",
         "react/zmq": "^0.3.0",
-        "doctrine/dbal": "~2.2"
+        "doctrine/dbal": "~2.2",
+        "cnam/security-jwt-service-provider": "2.*"
     },
     "autoload": {
         "psr-4": { "EQT\\": "src/" }

@@ -4,7 +4,7 @@ namespace EQT\Api\Controller;
 use Silex\Application;
 use Silex\Api\ControllerProviderInterface;
 
-class TimerGroupController extends AbstractController implements ControllerProviderInterface {
+class TimerGroupController extends AbstractCRUDController implements ControllerProviderInterface {
     /**
      * @param Application $app
      * @return mixed

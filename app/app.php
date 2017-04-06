@@ -14,6 +14,10 @@ require __DIR__ .'/config/dev.php';
 require __DIR__.'/middleware.php';
 require __DIR__.'/routes.php';
 
+$app['eqt.jwt_authenticator'] = function ($app) {
+    return new EQT\Api\Security\JwtAuthenticator($app['security.encoder_factory']);
+};
+
 $app->after($app["cors"]);
 
 $app->finish(function(Request $request, Response $response) use ($app) {

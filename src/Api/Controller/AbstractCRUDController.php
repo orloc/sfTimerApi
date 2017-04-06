@@ -6,7 +6,7 @@ use EQT\Api\Utility;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 
-abstract class AbstractController {
+abstract class AbstractCRUDController {
 
     protected $app;
     protected $db;
