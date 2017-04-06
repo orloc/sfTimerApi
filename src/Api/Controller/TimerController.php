@@ -56,19 +56,15 @@ class TimerController implements ControllerProviderInterface {
     }
 
     public function create(Request $request){
-        $this->validateInput($request);
+        $timer = $this->validateInput($request, new Timer());
+
+        var_dump($timer);
+        die;
 
     }
 
     public function update(Request $request, $id){
-        $timer = $this->findKeyFromId($id);
-        if (!$timer){
-            $this->app->abort(404, "Timer {$id} not found");
-        }
 
-        $json = $this->doUpdate($request);
-
-        return Utility::JsonResponse($json, 200);
     }
 
     public function delete(Request $request, $id){
@@ -81,36 +77,14 @@ class TimerController implements ControllerProviderInterface {
         return Utility::JsonResponse([ 'id' => $id ], 200);
     }
 
-    protected function validateInput(Request $request){
-        $object = Utility::mapRequest($request->request->all(), new Timer());
+    protected function validateInput(Request $request, $object){
+        $object = Utility::mapRequest($request->request->all(), $object);
         $errors = Utility::handleValidationErrors($this->app['validator']->validate($object));
 
         if ($errors) {
             $this->app->abort(400, $errors);
         }
-    }
 
-
-    protected function doUpdate(Request $request, $create = false){
-
-        if ($create){
-            if ($this->redis->hexists(Timer::$redisKey, $object->getLabel())){
-                $this->app->abort(409, 'Duplicate timer in set');
-            }
-        }
-
-        $res = $this->redis->hset(Timer::$redisKey, $object->getLabel(), $json);
-
-        if (!$res){
-            $this->app->abort(500, 'Unable to add item to redis index');
-        }
-
-        return $json;
-    }
-
-
-    protected function findKeyFromId($id) {
-        $parsedId = str_replace('_', ' ', $id);
-        return $this->redis->hget(Timer::$redisKey, $parsedId);
+        return $object;
     }
 }
