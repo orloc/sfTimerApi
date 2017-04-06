@@ -11,7 +11,7 @@ class TimerGroupController extends AbstractCRUDController implements ControllerP
      */
     public function connect(Application $app){
         $controllers = $app['controllers_factory'];
-        $controllers->get('/', [$this, 'all']);
+        $controllers->get('', [$this, 'all']);
         $controllers->get('/{id}', [$this, 'getBy']);
 
         $controllers->post('', [$this,'create']);

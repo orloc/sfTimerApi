@@ -46,7 +46,7 @@ class Utility {
                 $json = json_encode($data);
             } catch(\Exception $e) {
                 $json = json_encode($e->getMessage());
-                $code = 500;
+                $code = Response::HTTP_BAD_REQUEST;
             }
         }
 
