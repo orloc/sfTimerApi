@@ -33,7 +33,10 @@ $app->finish(function(Request $request, Response $response) use ($app) {
 });
 
 $app->error(function (\Exception $e, Request $request, $code) use ($app) {
-    return $app->json(Utility::formatError($e->getMessage(), $code));
+    
+    var_dump($e->getMessage(), $code);
+    die;
+    return Utility::JsonResponse(Utility::formatError($e->getMessage(), $code), $code, true);
 });
 
 return $app;

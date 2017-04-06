@@ -7,7 +7,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 
 class Utility {
     
-    public static function formatError($message, $status=400){
+    public static function formatError($message, $status = Response::HTTP_BAD_REQUEST){
         return [
             'message' => $message,
             'status_code' => $status
@@ -46,7 +46,7 @@ class Utility {
                 $json = json_encode($data);
             } catch(\Exception $e) {
                 $json = json_encode($e->getMessage());
-                $code = Response::HTTP_BAD_REQUEST;
+                $code = Response::HTTP_INTERNAL_SERVER_ERROR;
             }
         }
 
