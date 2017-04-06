@@ -28,7 +28,8 @@
         "symfony/serializer": "^3.2",
         "jdesrosiers/silex-cors-provider": "~1.0",
         "cboden/ratchet": "^0.3.6",
-        "react/zmq": "^0.3.0"
+        "react/zmq": "^0.3.0",
+        "doctrine/dbal": "~2.2"
     },
     "autoload": {
         "psr-4": { "EQT\\": "src/" }

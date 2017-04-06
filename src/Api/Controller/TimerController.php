@@ -13,11 +13,11 @@ use EQT\Api\Utility;
  */
 class TimerController implements ControllerProviderInterface {
     protected $app;
-    protected $redis;
-    
+    protected $db;
+
     public function __construct(Application $app){
         $this->app = $app;
-        $this->redis = $app['predis'];
+        $this->db = $app['db'];
     }
     /**
      * @param Application $app
@@ -27,18 +27,18 @@ class TimerController implements ControllerProviderInterface {
         $controllers = $app['controllers_factory'];
         $controllers->get(Utility::formatRoute('timer'), [$this, 'get']);
         $controllers->get(Utility::formatRoute('timer/{id}'), [$this, 'getBy']);
-        
+
         $controllers->post(Utility::formatRoute('timer'), [$this,'create']);
         $controllers->patch(Utility::formatRoute('timer/{id}'), [$this, 'update']);
         $controllers->delete(Utility::formatRoute('timer/{id}'), [$this, 'delete']);
-        
+
         return $controllers;
     }
-    
+
     public function get(Request $request){
-        $timers = array_values(array_map(function($timeJson) {
-            return $this->app['serializer']->deserialize($timeJson, 'EQT\Api\Entity\Timer', 'json');
-        }, $this->redis->hgetall(Timer::$redisKey)));
+        $timers = array_map(function($timeJson) {
+            return $this->app['serializer']->deserialize($timeJson, Timer::class, 'json');
+        }, Timer::all($this->db));
 
         $json = $this->app['serializer']->serialize($timers, 'json');
 
@@ -46,56 +46,53 @@ class TimerController implements ControllerProviderInterface {
     }
 
     public function getBy(Request $request, $id){
-        $parsedId = str_replace('_', ' ', $id);
-        $timer = $this->redis->hget(Timer::$redisKey, $parsedId);
+        $timer = Timer::getBy($this->db, $id);
         
         if (!$timer){
             $this->app->abort(404, "Timer {$id} not found");
         }
-        
+
         return Utility::JsonResponse($timer, 200);
     }
-    
+
     public function create(Request $request){
-        $json = $this->doUpdate($request, true);
-        
-        return Utility::JsonResponse($json, 200);
+        $this->validateInput($request);
+
     }
-    
+
     public function update(Request $request, $id){
         $timer = $this->findKeyFromId($id);
         if (!$timer){
             $this->app->abort(404, "Timer {$id} not found");
         }
-        
+
         $json = $this->doUpdate($request);
 
         return Utility::JsonResponse($json, 200);
     }
-    
+
     public function delete(Request $request, $id){
-        $timer = $this->findKeyFromId($id);
-        if (!$timer){
+        if (!Timer::hasItem($this->db, $id)) {
             $this->app->abort(404, "Timer {$id} not found");
         }
-        
-        if (!$this->redis->hdel(Timer::$redisKey, str_replace('_',' ',$id))) {
-            $this->app->abort(500, "Unable to delete {$id}");
-        }
-        return Utility::JsonResponse(json_encode([ 'id' => $id ]), 200);
+
+        Timer::delete($this->db, $id);
+
+        return Utility::JsonResponse([ 'id' => $id ], 200);
     }
-    
-    protected function doUpdate(Request $request, $create = false){
+
+    protected function validateInput(Request $request){
         $object = Utility::mapRequest($request->request->all(), new Timer());
         $errors = Utility::handleValidationErrors($this->app['validator']->validate($object));
 
         if ($errors) {
-        $this->app->abort(400, $errors);
+            $this->app->abort(400, $errors);
         }
+    }
 
-        $json = $this->app['serializer']->serialize($object, 'json');
 
-        
+    protected function doUpdate(Request $request, $create = false){
+
         if ($create){
             if ($this->redis->hexists(Timer::$redisKey, $object->getLabel())){
                 $this->app->abort(409, 'Duplicate timer in set');
@@ -107,9 +104,10 @@ class TimerController implements ControllerProviderInterface {
         if (!$res){
             $this->app->abort(500, 'Unable to add item to redis index');
         }
-        
+
         return $json;
     }
+
 
     protected function findKeyFromId($id) {
         $parsedId = str_replace('_', ' ', $id);

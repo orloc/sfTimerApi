@@ -4,14 +4,15 @@ namespace EQT\Api\Entity;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class Timer {
+class Timer extends AbstractEntity {
     
     public static $redisKey = 'eqt:entity:timer';
+    public static $tableName = 'timers';
 
+    protected $id;
+    
     protected $duration;
 
-    protected $reset_count;
-    
     protected $last_tick;
 
     protected $label;
@@ -27,21 +28,16 @@ class Timer {
         $metadata->addPropertyConstraints('label',[new Assert\NotBlank()]);
     }
     
+    public function getId(){
+        return $this->id;
+    }
+    
     public function getDuration(){
         return $this->duration;
     }
     
     public function setDuration($duration){
         $this->duration = $duration; 
-        return $this;
-    }
-    
-    public function getResetCount(){ 
-        return $this->reset_count;
-    }
-    
-    public function setResetCount($count){
-        $this->reset_count = $count;
         return $this;
     }
     

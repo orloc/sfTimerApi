@@ -45,7 +45,14 @@ class Utility {
     }
     
     public static function JsonResponse($data, $code) {
-        return new Response($data, $code, [
+        try {
+            $json = json_encode($data);
+        } catch(\Exception $e) {
+            $json = json_encode($e->getMessage());
+            $code = 500;
+        }
+
+        return new Response($json, $code, [
             'Content-Type' => 'application/json',
             'Access-Control-Allow-Headers' => 'Content-Type',
             'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS',
