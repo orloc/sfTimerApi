@@ -4,8 +4,11 @@ namespace EQT\Api\Controller;
 use Silex\Application;
 use Silex\Api\ControllerProviderInterface;
 
-class TimerController extends AbstractController implements ControllerProviderInterface {
-    
+class TimerGroupController extends AbstractController implements ControllerProviderInterface {
+    /**
+     * @param Application $app
+     * @return mixed
+     */
     public function connect(Application $app){
         $controllers = $app['controllers_factory'];
         $controllers->get('/', [$this, 'all']);
@@ -17,4 +20,5 @@ class TimerController extends AbstractController implements ControllerProviderIn
 
         return $controllers;
     }
+
 }

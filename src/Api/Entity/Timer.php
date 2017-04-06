@@ -6,8 +6,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class Timer extends AbstractEntity {
     
-    public static $tableName = 'timers';
-    
     protected $duration;
 
     protected $last_tick;

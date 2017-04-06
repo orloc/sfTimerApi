@@ -25,10 +25,6 @@ class Utility {
         
         return $object;
     }
-
-    public static function formatRoute($path){
-        return "/api/v1/{$path}";
-    }
     
     public static function handleValidationErrors(ConstraintViolationList $errors ) {
         if (count($errors) > 0) {
