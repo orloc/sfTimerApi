@@ -1,11 +1,11 @@
 <?php
 namespace EQT\Api\Controller;
 
+use EQT\Api\Utility;
 use Silex\Application;
 use Silex\Api\ControllerProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\HttpFoundation\Response;
 
 class SecurityController implements ControllerProviderInterface {
     
@@ -28,19 +28,18 @@ class SecurityController implements ControllerProviderInterface {
         $data = $request->request->all();
         
         if (empty($data['username']) || empty($data['password'])){
-            throw new BadRequestHttpException(sprintf("Unable to process request - bad fields"));
+            $this->app->abort(Response::HTTP_BAD_REQUEST, sprintf("Unable to process request - bad fields"));
         }
 
         $user = $this->user_provider->loadUserByUsername($data['username']);
-        
         if (!$user || !$this->app['security.encoder.digest']->isPasswordValid($user->getPassword(), $data['password'], '')) {
-            throw new UsernameNotFoundException(sprintf('Username "%s" does not exist or the password is invalid', $data['username']));
-        }  else {
-            $response = [
-                'success' => true,
-                'token' => $this->app['security.jwt.encoder']->encode(['name' => $user->getUsername()]),
-            ];
-        }
+            $this->app->abort(Response::HTTP_NOT_FOUND, sprintf('Username "%s" does not exist or the password is invalid', $data['username']));
+        }  
         
+        $response = [
+            'token' => $this->app['security.jwt.encoder']->encode(['name' => $user->getUsername()]),
+        ];
+
+        return Utility::JsonResponse($response, Response::HTTP_OK);
     }
 }

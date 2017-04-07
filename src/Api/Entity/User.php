@@ -1,10 +1,11 @@
 <?php
 namespace EQT\Api\Entity;
 
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class User extends AbstractEntity {
+class User extends AbstractEntity implements UserInterface {
     
     protected $username;
 
@@ -20,7 +21,6 @@ class User extends AbstractEntity {
         $metadata->addPropertyConstraints('password',[new Assert\NotBlank()]);
         $metadata->addPropertyConstraints('roles',[new Assert\NotBlank()]);
     }
-
 
     public function getUsername(){
         return $this->username;
@@ -57,4 +57,8 @@ class User extends AbstractEntity {
         $this->roles = $roles;
         return $this;
     }
+    
+    // Bcrypt has no salt
+    public function getSalt(){ return; }
+    public function eraseCredentials(){}
 }
