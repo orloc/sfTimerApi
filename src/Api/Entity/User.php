@@ -104,9 +104,9 @@ class User extends AbstractEntity implements UserInterface {
     protected function updatePassword(){
         $this->setPassword(
             $this->encoder_factory->getEncoder($this)
-                ->encodePassword($this->getPassword(), $this->getSalt())
+                ->encodePassword($this->plain_password, '')
         );
-
+        
         $this->eraseCredentials();
     }
     

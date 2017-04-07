@@ -17,4 +17,5 @@ if (isset($_SERVER['HTTP_CLIENT_IP'])
 Debug::enable();
 
 $app = require __DIR__ . '/../app/app.php';
+
 $app->run();

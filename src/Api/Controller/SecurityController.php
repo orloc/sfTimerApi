@@ -25,6 +25,7 @@ class SecurityController implements ControllerProviderInterface {
     }
 
     public function login(Request $request) {
+
         $data = $request->request->all();
         
         if (empty($data['username']) || empty($data['password'])){
@@ -32,7 +33,8 @@ class SecurityController implements ControllerProviderInterface {
         }
 
         $user = $this->user_provider->loadUserByUsername($data['username']);
-        if (!$user || !$this->app['security.encoder.digest']->isPasswordValid($user->getPassword(), $data['password'], '')) {
+        
+        if (!$user || !$this->app['security.encoder.bcrypt']->isPasswordValid($user->getPassword(), $data['password'], '')) {
             $this->app->abort(Response::HTTP_NOT_FOUND, sprintf('Username "%s" does not exist or the password is invalid', $data['username']));
         }  
         

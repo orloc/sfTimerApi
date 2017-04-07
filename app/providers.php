@@ -14,47 +14,12 @@ $app->register(new ServiceControllerServiceProvider());
 $app->register(new AssetServiceProvider());
 $app->register(new ValidatorServiceProvider());
 $app->register(new SerializerServiceProvider());
-
-$app->register(new Silex\Provider\SecurityServiceProvider(), [
-    'security.firewalls' => [
-        'login' => [
-            'pattern' => 'login|register',
-            'anonymous' => true
-        ],
-        'main' => [
-            'pattern' => '^/meow',
-            'stateless' => true,
-            'logout' => [
-                'logout_path' => '/logout' , 'invalidate_session' => true
-            ],
-            'guard' => [
-                'authenticators' => [
-                    'eqt.jwt_authenticator'
-                ]
-            ],
-            'users' => function() use ($app){
-                return new \EQT\Api\Security\UserProvider($app['db'], $app['eqt.models.user']);
-            }
-        ]
-    ],
-    'security.access_rules' => [
-        ['^/token-group', 'ROLE_MEMBER']
-    ],
-    'security.role_hierarchy' => [
-        'ROLE_ADMIN' => [ 'ROLE_USER' ]
-    ]
-]);
+$app->register(new Silex\Provider\SecurityServiceProvider());
+$app->register(new Silex\Provider\SecurityJWTServiceProvider());
 $app->register(new TwigServiceProvider());
 $app->register(new HttpFragmentServiceProvider());
-$app->register(new DoctrineServiceProvider(), [
-    'db.options' => array(
-        'driver'    => 'pdo_mysql',
-        'host'      => 'localhost',
-        'dbname'    => 'eq_timers',
-        'user'      => 'root',
-        'password'  => ''
-    ),
-]);
+$app->register(new DoctrineServiceProvider());
+$app->register(new CorsServiceProvider());
 /*
 $app->register(new ClientServiceProvider(), [
     'predis.parameters' => 'tcp://127.0.0.1:6379',
@@ -65,6 +30,3 @@ $app->register(new ClientServiceProvider(), [
 ]);
 */
 
-$app->register(new CorsServiceProvider(), [
-    "cors.allowOrigin" => "*",
-]);
