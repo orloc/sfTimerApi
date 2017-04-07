@@ -4,6 +4,9 @@ namespace EQT\Api\Entity;
 
 use Doctrine\Common\Inflector\Inflector;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\ConstraintViolationException;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 abstract class AbstractEntity {
@@ -36,6 +39,12 @@ abstract class AbstractEntity {
         return $ret;
     }
     
+    public function beforeSave(Array &$data){}
+    public function afterSave(Array $data, $id){}
+
+    public function beforeUpdate(Array &$data){}
+    public function afterUpdate(Array $data){}
+    
     public function setId($id) {
         $this->id = $id; 
         return $this;
@@ -56,9 +65,18 @@ abstract class AbstractEntity {
     public function save(Connection $db){
         $data = get_object_vars($this);
         unset($data['id']);
-        $db->insert($this->resolveTableName(), $data, [ 'created_at' => 'datetime'] );
+        
+        $this->beforeSave($data);
+
+        try {
+            $db->insert($this->resolveTableName(), $data, [ 'created_at' => 'datetime'] );
+        } catch (ConstraintViolationException $e) {
+            throw new ConflictHttpException($e->getMessage(), $e);
+        }
         $id =  $db->lastInsertId();
         $this->setId($id);
+        
+        $this->afterSave($data, $id);
     }
 
     public function update(Connection $db){
@@ -68,7 +86,11 @@ abstract class AbstractEntity {
         unset($data['id']);
         unset($data['created_at']);
 
+        $this->beforeUpdate($data);
+        
         $db->update($this->resolveTableName(), $data, [ 'id' => $id]);
+        
+        $this->afterUpdate($data);
     }
 
     public static function all(Connection $db, $filter = [], $order = []){

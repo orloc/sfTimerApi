@@ -32,6 +32,10 @@ class User extends AbstractEntity implements UserInterface {
         $this->encoder_factory = $encoder;
         parent::__construct();
     }
+    
+    public function beforeSave(Array &$data) {
+        unset($data['plain_password']);
+    }
 
     public function save(Connection $db) {
         if (!$this->plain_password) {
