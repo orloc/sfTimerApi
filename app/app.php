@@ -10,11 +10,12 @@ use EQT\Api\Utility;
 $app = new Application();
 
 require __DIR__.'/providers.php';
+require __DIR__.'/services.php';
 require __DIR__ .'/config/dev.php';
 require __DIR__.'/middleware.php';
 require __DIR__.'/routes.php';
 
-require __DIR__.'/services.php';
+
 
 $app['eqt.jwt_authenticator'] = function ($app) {
     return new EQT\Api\Security\JwtAuthenticator($app['security.encoder_factory']);

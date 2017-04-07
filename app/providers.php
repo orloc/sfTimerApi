@@ -33,7 +33,7 @@ $app->register(new Silex\Provider\SecurityServiceProvider(), [
                 ]
             ],
             'users' => function() use ($app){
-                return new \EQT\Api\Security\UserProvider($app['db']);
+                return new \EQT\Api\Security\UserProvider($app['db'], $app['eqt.models.user']);
             }
         ]
     ],

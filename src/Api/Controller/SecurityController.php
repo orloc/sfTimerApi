@@ -21,7 +21,7 @@ class SecurityController implements ControllerProviderInterface {
     
     public function __construct(Application $app) {
         $this->app = $app;
-        $this->user_provider = new \EQT\Api\Security\UserProvider($app['db']);
+        $this->user_provider = new \EQT\Api\Security\UserProvider($app['db'], $app['eqt.models.user']);
     }
 
     public function login(Request $request) {
