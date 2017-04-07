@@ -45,13 +45,13 @@ abstract class AbstractEntity {
 
         return $ret;
     }
-    
+
     public function beforeSave(Array &$data){}
     public function afterSave(Array $data, $id){}
 
     public function beforeUpdate(Array &$data){}
     public function afterUpdate(Array $data){}
-    
+
     public function setId($id) {
         $this->id = $id; 
         return $this;
