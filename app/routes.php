@@ -1,11 +1,13 @@
 <?php
+
 $prefix = "/api/v1";
 
 $authController = new \EQT\Api\Controller\SecurityController($app);
 
 $controllers = [
     "timer" => new \EQT\Api\Controller\TimerController($app),
-    "timer-group" => new \EQT\Api\Controller\TimerGroupController($app)
+    "timer-group" => new \EQT\Api\Controller\TimerGroupController($app),
+    'user' => new \EQT\Api\Controller\UserController($app)
 ];
 
 $factory = $authController->connect($app);

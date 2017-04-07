@@ -44,7 +44,7 @@ function displayRoutes(Application $app, OutputInterface $output = null) {
 try {
     $silexApp = require_once __DIR__.'/../app/app.php'; 
 } catch (\Exception $e) {
-    var_dump($e);die;
+    var_dump($e->getMessage());die;
 }
 
 // Dont forget:

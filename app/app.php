@@ -14,6 +14,8 @@ require __DIR__ .'/config/dev.php';
 require __DIR__.'/middleware.php';
 require __DIR__.'/routes.php';
 
+var_dump($user, $things);die;
+
 $app['eqt.jwt_authenticator'] = function ($app) {
     return new EQT\Api\Security\JwtAuthenticator($app['security.encoder_factory']);
 };

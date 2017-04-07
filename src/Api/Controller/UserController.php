@@ -7,16 +7,14 @@ use Symfony\Component\HttpFoundation\Request;
 
 class UserController extends AbstractCRUDController implements ControllerProviderInterface {
     
-    use Application\SecurityTrait;
-    
     public function connect(Application $app){
         $controllers = $app['controllers_factory'];
-        $controllers->get('', [$this, 'all'])->secure('ROLE_ADMIN');
-        $controllers->get('/{id}', [$this, 'getBy'])->secure('ROLE_ADMIN');
+        $controllers->get('', [$this, 'all']);
+        $controllers->get('/{id}', [$this, 'getBy']);
 
-        $controllers->post('', [$this,'create'])->secure('ROLE_ADMIN');
-        $controllers->patch('/{id}', [$this, 'update'])->secure('ROLE_ADMIN');
-        $controllers->delete('/{id}', [$this, 'delete'])->secure('ROLE_ADMIN');
+        $controllers->post('', [$this,'create']);
+        $controllers->patch('/{id}', [$this, 'update']);
+        $controllers->delete('/{id}', [$this, 'delete']);
 
         return $controllers;
     }
