@@ -22,7 +22,7 @@ $app->register(new Silex\Provider\SecurityServiceProvider(), [
             'anonymous' => true
         ],
         'main' => [
-            'pattern' => '^/api',
+            'pattern' => '^/meow',
             'stateless' => true,
             'logout' => [
                 'logout_path' => '/logout' , 'invalidate_session' => true

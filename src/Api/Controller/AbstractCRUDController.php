@@ -19,20 +19,36 @@ abstract class AbstractCRUDController {
     
     private function getEntityClass(){
         $reflect = new \ReflectionClass($this);
+        $shortName = str_replace('Controller', '', $reflect->getShortName());
+        
+        $entityPath = "eqt.models.{$shortName}";
+        
+        $entityService = isset($this->app[strtolower($entityPath)]) 
+            ? $this->app[strtolower($entityPath)] 
+            : false;
+        
+        if ($entityService){
+            return $entityService;
+        }
+        
         return join('\\', [
             $this->app['eqt.entity_class_path'],
-            str_replace('Controller', '', $reflect->getShortName())
+            $shortName
         ]);
     }
 
     public function all(Request $request){
         $class = $this->getEntityClass();
-        return Utility::JsonResponse($class::all($this->db), Response::HTTP_OK);
+        $className = is_object($class) ? get_class($class) : $class;
+        
+        return Utility::JsonResponse($className::all($this->db), Response::HTTP_OK);
     }
 
     public function getBy(Request $request, $id){
         $class = $this->getEntityClass();
-        $entity = $class::getBy($this->db, $id);
+        $className = is_object($class) ? get_class($class) : $class;
+        
+        $entity = $className::getBy($this->db, $id);
 
         if (!$entity){
             $this->app->abort(Response::HTTP_NOT_FOUND, "{$class} {$id} not found");
@@ -44,34 +60,41 @@ abstract class AbstractCRUDController {
     public function create(Request $request){
         $class = $this->getEntityClass();
         
-        $entity = $this->validateInput($request->request->all(), new $class());
+        $entity = $this->validateInput($request->request->all(), 
+            is_object($class) ? $class : new $class()
+        );
+        
         $entity->save($this->db);
 
-        return Utility::JsonResponse($entity->__toString(), Response::HTTP_CREATED);
+        return Utility::JsonResponse($entity->serialize(), Response::HTTP_CREATED);
     }
 
     public function update(Request $request, $id){
         $class = $this->getEntityClass();
+        $className = is_object($class) ? get_class($class) : $class;
         
-        if (!$class::hasItem($this->db, $id)) {
-            $this->app->abort(Response::HTTP_NOT_FOUND, "{$class} {$id} not found");
+        if (!$className::hasItem($this->db, $id)) {
+            $this->app->abort(Response::HTTP_NOT_FOUND, "{$className} {$id} not found");
         }
 
-        $entity = $this->validateInput(array_merge($request->request->all(), [ 'id' => $id])
-            , new $class());
+        $entity = $this->validateInput(array_merge($request->request->all(), [ 'id' => $id]), 
+            is_object($class) ? $class : new $class()
+        );
 
         $entity->update($this->db);
 
-        return Utility::JsonResponse($entity->__toString(), Response::HTTP_OK);
+        return Utility::JsonResponse($entity->serialize(), Response::HTTP_OK);
     }
 
     public function delete(Request $request, $id){
         $class = $this->getEntityClass();
-        if (!$class::hasItem($this->db, $id)) {
-            $this->app->abort(Response::HTTP_NOT_FOUND, "{$class} {$id} not found");
+        $className = is_object($class) ? get_class($class) : $class;
+        
+        if (!$className::hasItem($this->db, $id)) {
+            $this->app->abort(Response::HTTP_NOT_FOUND, "{$className} {$id} not found");
         }
 
-        $class::delete($this->db, $id);
+        $className::delete($this->db, $id);
 
         return Utility::JsonResponse([ 'id' => $id ], Response::HTTP_OK);
     }

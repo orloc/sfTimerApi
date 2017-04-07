@@ -18,7 +18,7 @@ abstract class AbstractEntity {
         $this->created_at = new \DateTime();
     }
     
-    public function __toString()
+    public function serialize()
     {
         $reflect = new \ReflectionClass(get_class($this));
         $accessor = PropertyAccess::createPropertyAccessor();
