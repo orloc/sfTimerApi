@@ -5,7 +5,6 @@ namespace EQT\Api\Entity;
 use Doctrine\Common\Inflector\Inflector;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\ConstraintViolationException;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
@@ -16,6 +15,8 @@ abstract class AbstractEntity {
     protected $created_at;
 
     protected $deleted_at;
+    
+    protected $black_list = [];
 
     public function __construct(){
         $this->created_at = new \DateTime();
@@ -29,6 +30,10 @@ abstract class AbstractEntity {
         $ret = [];
         
         foreach ($reflect->getProperties(\ReflectionProperty::IS_PROTECTED) as $p){
+            if (isset($this->black_list[$p->getName])){
+                continue;
+            }
+            
             $ret[$p->getName()] = $accessor->getValue($this, $p->getName());
 
             if ($ret[$p->getName()] instanceof \DateTime) {
@@ -64,6 +69,8 @@ abstract class AbstractEntity {
 
     public function save(Connection $db){
         $data = get_object_vars($this);
+        
+        unset($data['black_list']);
         unset($data['id']);
         
         $this->beforeSave($data);
@@ -85,10 +92,15 @@ abstract class AbstractEntity {
         
         unset($data['id']);
         unset($data['created_at']);
+        unset($data['black_list']);
 
         $this->beforeUpdate($data);
         
-        $db->update($this->resolveTableName(), $data, [ 'id' => $id]);
+        try {
+            $db->update($this->resolveTableName(), $data, [ 'id' => $id]);
+        } catch (ConstraintViolationException $e) {
+            throw new ConflictHttpException($e->getMessage(), $e);
+        }
         
         $this->afterUpdate($data);
     }

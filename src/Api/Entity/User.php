@@ -30,6 +30,11 @@ class User extends AbstractEntity implements UserInterface {
     
     public function __construct(EncoderFactoryInterface $encoder){
         $this->encoder_factory = $encoder;
+        
+        $this->black_list = [
+            'password'
+        ];
+        
         parent::__construct();
     }
     
