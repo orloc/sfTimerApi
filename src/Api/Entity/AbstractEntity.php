@@ -16,7 +16,7 @@ abstract class AbstractEntity {
 
     protected $deleted_at;
     
-    protected $black_list = [];
+    public static $black_list = [];
 
     public function __construct(){
         $this->created_at = new \DateTime();
@@ -30,17 +30,19 @@ abstract class AbstractEntity {
         $ret = [];
         
         foreach ($reflect->getProperties(\ReflectionProperty::IS_PROTECTED) as $p){
-            if (isset($this->black_list[$p->getName])){
-                continue;
-            }
-            
             $ret[$p->getName()] = $accessor->getValue($this, $p->getName());
 
             if ($ret[$p->getName()] instanceof \DateTime) {
                 $ret[$p->getName()] = $ret[$p->getName()]->format(\DateTime::ISO8601);
             }
         }
-        
+
+        foreach ($ret as $k => $v){
+            if (in_array($k, static::$black_list)){
+                unset($ret[$k]);
+            }
+        }
+
         return $ret;
     }
     
