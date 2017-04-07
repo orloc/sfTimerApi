@@ -41,7 +41,11 @@ abstract class AbstractCRUDController {
         $class = $this->getEntityClass();
         $className = is_object($class) ? get_class($class) : $class;
         
-        return Utility::JsonResponse($className::all($this->db), Response::HTTP_OK);
+        $objects = array_map(function($i) use ($class) {
+            return Utility::mapRequest($i, is_object($class) ? $class : new $class())->serialize();
+        }, $className::all($this->db));
+        
+        return Utility::JsonResponse($objects, Response::HTTP_OK);
     }
 
     public function getBy(Request $request, $id){
@@ -54,7 +58,9 @@ abstract class AbstractCRUDController {
             $this->app->abort(Response::HTTP_NOT_FOUND, "{$class} {$id} not found");
         }
 
-        return Utility::JsonResponse($entity, Response::HTTP_OK);
+        $data = Utility::mapRequest($entity, is_object($class) ? $class : new $class())->serialize();
+
+        return Utility::JsonResponse($data, Response::HTTP_OK);
     }
 
     public function create(Request $request){
