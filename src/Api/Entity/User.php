@@ -89,7 +89,7 @@ class User extends AbstractEntity implements UserInterface {
     }
     
     public function getRoles(){
-        return $this->roles;
+        return [$this->roles];
     }
     
     public function setRoles($roles){
