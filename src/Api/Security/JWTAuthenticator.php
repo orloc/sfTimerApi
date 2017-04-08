@@ -3,11 +3,13 @@
 namespace EQT\Api\Security;;
 
 use EQT\Api\Utility;
+use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
@@ -17,34 +19,39 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 class JWTAuthenticator extends AbstractGuardAuthenticator
 {
     private $jwt_config;
-
+    
     public function __construct(Array $jwt_config) {
         $this->jwt_config = $jwt_config;
     }
 
     public function getCredentials(Request $request) {
-        if (!$token = $request->headers->get($this->jwt_config['options']['header_name'])) {
-            return;
-        }
-
+        
+        if (!$token = $request->headers->get($this->jwt_config['options']['header_name'])) return;
+        
         $prefix = $this->jwt_config['options']['token_prefix'];
-
-        if (strpos($token, $prefix) !== 0){
-            return;
+        
+        if (strpos($token, $prefix) !== 0)  return;
+        
+        try {
+            return (Array)JWT::decode(
+                trim(substr($token, strlen($prefix))),
+                $this->jwt_config['secret_key'],
+                $this->jwt_config['algorithm']
+            );
+        } catch (\DomainException $e){
+            throw new AccessDeniedHttpException('Bad or malformed token');
+        } catch (ExpiredException $e) {
+            // implement refresh token here
+            throw new AccessDeniedHttpException('Access Token has expired');
         }
-
-        return JWT::decode(
-            trim(substr($token, strlen($prefix))),
-            $this->jwt_config['secret_key'],
-            $this->jwt_config['algorithm']
-        );
     }
 
     public function getUser($credentials, UserProviderInterface $userProvider) {
-        return $userProvider->loadUserByUsername($credentials->username);
+        return $userProvider->loadUserByUsername($credentials['username']);
     }
 
     public function checkCredentials($credentials, UserInterface $user) {
+
         return true;
     }
 

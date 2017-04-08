@@ -36,25 +36,20 @@ class SecurityController implements ControllerProviderInterface {
             $this->app->abort(Response::HTTP_BAD_REQUEST, sprintf("Unable to process request - bad fields"));
         }
 
-        try {
+        $user = $this->user_provider->loadUserByUsername($data['username']);
 
-            $user = $this->user_provider->loadUserByUsername($data['username']);
-
-            if (!$user || !$this->app['security.encoder.bcrypt']->isPasswordValid($user->getPassword(), $data['password'], '')) {
-                $this->app->abort(Response::HTTP_NOT_FOUND, sprintf('Username "%s" does not exist or the password is invalid', $data['username']));
-            }
-
-            $response = [
-                'token' => $this->encoder->encode([
-                    'id' => $user->getId(),
-                    'username' => $user->getUsername(),
-                    'role' => $user->getRoles()
-                ]),
-            ];
-
-            return Utility::JsonResponse($response, Response::HTTP_OK);
-        } catch (\Exception $e) {
-            var_dump($e);die;
+        if (!$user || !$this->app['security.encoder.bcrypt']->isPasswordValid($user->getPassword(), $data['password'], '')) {
+            $this->app->abort(Response::HTTP_NOT_FOUND, sprintf('Username "%s" does not exist or the password is invalid', $data['username']));
         }
+
+        $response = [
+            'token' => $this->encoder->encode([
+                'id' => $user->getId(),
+                'username' => $user->getUsername(),
+                'role' => $user->getRoles()
+            ]),
+        ];
+        
+        return Utility::JsonResponse($response, Response::HTTP_OK);
     }
 }

@@ -23,14 +23,15 @@
         "symfony/translation": "~2.8|3.0.*",
         "symfony/twig-bridge": "~2.8|3.0.*",
         "symfony/validator": "~2.8|3.0.*",
-        "predis/predis": "^1.1",
         "predis/service-provider": "^2.0",
         "symfony/serializer": "^3.2",
         "jdesrosiers/silex-cors-provider": "~1.0",
         "cboden/ratchet": "^0.3.6",
         "react/zmq": "^0.3.0",
+        "predis/predis": "^1.1",
         "doctrine/dbal": "~2.2",
-        "cnam/security-jwt-service-provider": "2.*"
+        "firebase/php-jwt": "^4.0",
+        "nesbot/carbon": "^1.22"
     },
     "autoload": {
         "psr-4": { "EQT\\": "src/" }
