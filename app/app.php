@@ -15,11 +15,6 @@ require __DIR__.'/config/dev.php';
 require __DIR__.'/services.php';
 
 $app->before(function(Request $request, Application $app){
-    $token = $app['security.token_storage']->getToken();
-
-});
-
-$app->before(function(Request $request, Application $app){
     if(in_array($request->getMethod(), ['POST', 'PATCH'])){
         if(!strlen($request->getContent())) {
             $app->abort(400, 'Empty Request body');

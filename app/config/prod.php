@@ -15,9 +15,6 @@ $app['db.options'] = [
 
 $app["cors.allowOrigin"] = "*";
 
-$app['twig.path'] = [__DIR__.'/../templates'];
-$app['twig.options'] = ['cache' => __DIR__.'/../var/cache/twig'];
-
 $app['security.jwt'] = [
     'secret_key' => 'Very_secret_key',
     'life_time'  => 60 * 60 * 3,

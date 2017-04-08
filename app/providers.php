@@ -14,8 +14,6 @@ $app->register(new ServiceControllerServiceProvider());
 $app->register(new ValidatorServiceProvider());
 $app->register(new SerializerServiceProvider());
 $app->register(new Silex\Provider\SecurityServiceProvider());
-$app->register(new TwigServiceProvider());
-$app->register(new HttpFragmentServiceProvider());
 $app->register(new DoctrineServiceProvider());
 $app->register(new CorsServiceProvider());
 

@@ -13,7 +13,8 @@ class TimerGroup extends AbstractEntity {
     protected $user_id; 
     
     static public function loadValidatorMetadata(ClassMetadata $metadata){
-        $metadata->addPropertyConstraints('name',[new Assert\NotBlank()]);
+        $metadata->addPropertyConstraints('name', [new Assert\NotBlank()]);
+        $metadata->addPropertyConstraints('user_id', [new Assert\NotBlank()]);
     }
 
     public function getName() {

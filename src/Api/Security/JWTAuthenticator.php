@@ -3,13 +3,13 @@
 namespace EQT\Api\Security;;
 
 use EQT\Api\Utility;
-use Firebase\JWT\ExpiredException;
-use Firebase\JWT\JWT;
 use Silex\Application;
+use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
@@ -20,29 +20,30 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
 {
     private $jwt_config;
     
-    public function __construct(Array $jwt_config) {
+    private $encoder;
+    
+    public function __construct(Array $jwt_config, JWTEncoder $encoder) {
         $this->jwt_config = $jwt_config;
+        $this->encoder = $encoder;
     }
 
     public function getCredentials(Request $request) {
         
-        if (!$token = $request->headers->get($this->jwt_config['options']['header_name'])) return;
+        if (!$token = $request->headers->get($this->jwt_config['options']['header_name'])) {
+            throw new BadCredentialsException('Bad Token');
+        };
         
         $prefix = $this->jwt_config['options']['token_prefix'];
         
-        if (strpos($token, $prefix) !== 0)  return;
+        if (strpos($token, $prefix) !== 0)  {
+            throw new BadCredentialsException('Malformed Prefix');
+        }
         
         try {
-            return (Array)JWT::decode(
-                trim(substr($token, strlen($prefix))),
-                $this->jwt_config['secret_key'],
-                $this->jwt_config['algorithm']
-            );
-        } catch (\DomainException $e){
-            throw new AccessDeniedHttpException('Bad or malformed token');
-        } catch (ExpiredException $e) {
+            return $this->encoder->decode(trim(substr($token, strlen($prefix))));
+        } catch (AccessDeniedException $e) {
             // implement refresh token here
-            throw new AccessDeniedHttpException('Access Token has expired');
+            throw new AccessDeniedHttpException($e->getMessage());
         }
     }
 
