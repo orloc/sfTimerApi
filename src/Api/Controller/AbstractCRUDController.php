@@ -16,26 +16,6 @@ abstract class AbstractCRUDController {
         $this->app = $app;
         $this->db = $app['db'];
     }
-    
-    private function getEntityClass(){
-        $reflect = new \ReflectionClass($this);
-        $shortName = str_replace('Controller', '', $reflect->getShortName());
-        
-        $entityPath = "eqt.models.{$shortName}";
-        
-        $entityService = isset($this->app[strtolower($entityPath)]) 
-            ? $this->app[strtolower($entityPath)] 
-            : false;
-        
-        if ($entityService){
-            return $entityService;
-        }
-        
-        return join('\\', [
-            $this->app['eqt.entity_class_path'],
-            $shortName
-        ]);
-    }
 
     public function all(Request $request){
         $class = $this->getEntityClass();
@@ -114,5 +94,25 @@ abstract class AbstractCRUDController {
         }
 
         return $object;
+    }
+
+    private function getEntityClass(){
+        $reflect = new \ReflectionClass($this);
+        $shortName = str_replace('Controller', '', $reflect->getShortName());
+
+        $entityPath = "eqt.models.{$shortName}";
+
+        $entityService = isset($this->app[strtolower($entityPath)])
+            ? $this->app[strtolower($entityPath)]
+            : false;
+
+        if ($entityService){
+            return $entityService;
+        }
+
+        return join('\\', [
+            $this->app['eqt.entity_class_path'],
+            $shortName
+        ]);
     }
 }

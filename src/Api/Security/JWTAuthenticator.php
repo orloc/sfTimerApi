@@ -3,8 +3,9 @@
 namespace EQT\Api\Security;;
 
 use EQT\Api\Utility;
+use EQT\Api\Security\Core\JWTEncoder;
+use Firebase\JWT\ExpiredException;
 use Silex\Application;
-use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,12 +39,16 @@ class JWTAuthenticator extends AbstractGuardAuthenticator
         if (strpos($token, $prefix) !== 0)  {
             throw new BadCredentialsException('Malformed Prefix');
         }
-        
+
+
         try {
             return $this->encoder->decode(trim(substr($token, strlen($prefix))));
-        } catch (AccessDeniedException $e) {
+        }
+        catch (\DomainException $e){
+            throw new AccessDeniedHttpException('Bad or malformed token');
+        } catch (ExpiredException $e) {
             // implement refresh token here
-            throw new AccessDeniedHttpException($e->getMessage());
+            throw new AccessDeniedHttpException('Access Token has expired');
         }
     }
 

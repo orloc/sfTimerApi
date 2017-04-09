@@ -2,7 +2,7 @@
 namespace EQT\Api\Controller;
 
 use EQT\Api\Utility;
-use EQT\Api\Security\JWTEncoder;
+use EQT\Api\Security\Core\JWTEncoder;
 use Silex\Application;
 use Silex\Api\ControllerProviderInterface;
 use Symfony\Component\HttpFoundation\Request;

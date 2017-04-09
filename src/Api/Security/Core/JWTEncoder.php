@@ -1,12 +1,12 @@
 <?php
 
-namespace EQT\Api\Security;
+namespace EQT\Api\Security\Core;
 
 use Firebase\JWT\ExpiredException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use \Firebase\JWT\JWT;
 
-class JWTEncoder
+class JWTEncoder implements TokenEncoderInterface
 {
 
     /**
@@ -63,18 +63,11 @@ class JWTEncoder
      * @throws AccessDeniedException
      */
     public function decode($token) {
-        try {
-            return (Array)JWT::decode(
-                $token,
-                $this->secretKey,
-                $this->allowed_algs
-            );
-        } catch (\DomainException $e){
-            throw new AccessDeniedException('Bad or malformed token');
-        } catch (ExpiredException $e) {
-            // implement refresh token here
-            throw new AccessDeniedException('Access Token has expired');
-        }
+        return (Array)JWT::decode(
+            $token,
+            $this->secretKey,
+            $this->allowed_algs
+        );
     }
 }
 

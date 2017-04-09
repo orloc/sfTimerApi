@@ -11,7 +11,7 @@ class User extends AbstractEntity implements UserInterface {
 
     public $plain_password;
 
-    public static $black_list = [
+    public static $serialization_black_list = [
         'password'
     ];
     

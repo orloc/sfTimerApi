@@ -6,7 +6,7 @@ $app['eqt.jwt_authenticator'] = function ($app) {
 
 $app['eqt.jwt_encoder'] = function ($app) {
     $jwt = $app['security.jwt'];
-    return new EQT\Api\Security\JWTEncoder($jwt['secret_key'], $jwt['life_time'], $jwt['algorithm']);
+    return new EQT\Api\Security\Core\JWTEncoder($jwt['secret_key'], $jwt['life_time'], $jwt['algorithm']);
 };
 
 $app['eqt.models.user'] = function()  use ($app) { 
