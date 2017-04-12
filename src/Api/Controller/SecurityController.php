@@ -8,6 +8,7 @@ use Silex\Application;
 use Silex\Api\ControllerProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 
 class SecurityController implements ControllerProviderInterface {
     
@@ -37,13 +38,19 @@ class SecurityController implements ControllerProviderInterface {
         $data = $request->request->all();
         
         if (!isset($data['username']) || !isset($data['password'])){
-            $this->app->abort(Response::HTTP_BAD_REQUEST, sprintf("Unable to process request - bad fields"));
+            $this->app->abort(Response::HTTP_BAD_REQUEST, "Unable to process request - bad fields");
         }
 
-        $user = $this->user_provider->loadUserByUsername($data['username']);
+        try {
+            $user = $this->user_provider->loadUserByUsername($data['username']);
+        } catch (UsernameNotFoundException $e){
+            $this->app->abort(Response::HTTP_NOT_FOUND, sprintf('Username "%s" does not exist', $data['username']));
+        } catch (\Exception $e){
+            $this->app->abort(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getMessage());  
+        }
 
-        if (!$user || !$this->app['security.encoder.bcrypt']->isPasswordValid($user->getPassword(), $data['password'], '')) {
-            $this->app->abort(Response::HTTP_NOT_FOUND, sprintf('Username "%s" does not exist or the password is invalid', $data['username']));
+        if( !$this->app['security.encoder.bcrypt']->isPasswordValid($user->getPassword(), $data['password'], '')) {
+            $this->app->abort(Response::HTTP_UNAUTHORIZED, 'Invalid password');
         }
         
         return Utility::JsonResponse($this->packageToken($this->encoder->encode($user)), Response::HTTP_OK);
@@ -54,7 +61,7 @@ class SecurityController implements ControllerProviderInterface {
         $data = $request->request->all();
 
         if (!isset($data['username']) || !isset($data['password'])){
-            $this->app->abort(Response::HTTP_BAD_REQUEST, sprintf("Unable to process request - bad fields"));
+            $this->app->abort(Response::HTTP_BAD_REQUEST, "Unable to process request - bad fields");
         }
         
         if (User::hasItem($this->app['db'], $data['username'], 'username')) { 

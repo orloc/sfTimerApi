@@ -15,5 +15,10 @@ $app->register(new ValidatorServiceProvider());
 $app->register(new SerializerServiceProvider());
 $app->register(new Silex\Provider\SecurityServiceProvider());
 $app->register(new DoctrineServiceProvider());
-$app->register(new CorsServiceProvider());
+$app->register(new CorsServiceProvider(), [
+    'cors.allowOrigin' => [
+        'localhost:9000',
+        'http://localhost:9000'
+    ]
+]);
 

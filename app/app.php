@@ -37,9 +37,6 @@ $app->before(function(Request $request, Application $app){
 
 require __DIR__.'/routes.php';
 
-
-$app->after($app["cors"]);
-
 $app->finish(function(Request $request, Response $response) use ($app) {
     $positiveCode = $response->getStatusCode() < 300;
     $privilegedRoute = !in_array($request->get('_route'), [
@@ -61,5 +58,7 @@ $app->finish(function(Request $request, Response $response) use ($app) {
 $app->error(function (\Exception $e, Request $request, $code) use ($app) {
     return Utility::JsonResponse(Utility::formatError($e->getMessage(), $code), $code, true);
 });
+
+$app['cors-enabled']($app);
 
 return $app;

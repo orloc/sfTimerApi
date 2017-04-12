@@ -9,6 +9,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class User extends AbstractEntity implements UserInterface {
 
+    const TYPE_REGISTERED = 'REGISTERED';
+    const TYPE_ANONYMOUS  = 'ANONYMOUS';
+
     private $plain_password;
 
     public static $serialization_black_list = [
@@ -20,6 +23,8 @@ class User extends AbstractEntity implements UserInterface {
     protected $email;
 
     protected $password;
+
+    protected $type;
     
     protected $roles; 
     
@@ -28,7 +33,7 @@ class User extends AbstractEntity implements UserInterface {
 
     static public function loadValidatorMetadata(ClassMetadata $metadata){
         $metadata->addPropertyConstraints('username',[new Assert\NotBlank()]);
-        $metadata->addPropertyConstraints('email',[new Assert\NotBlank()]);
+        $metadata->addPropertyConstraints('type',[new Assert\NotBlank()]);
         $metadata->addPropertyConstraints('plain_password',[new Assert\NotBlank()]);
         $metadata->addPropertyConstraints('roles',[new Assert\NotBlank()]);
     }
