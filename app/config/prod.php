@@ -1,5 +1,7 @@
 <?php
 
+use Symfony\Component\HttpFoundation\RequestMatcher;
+
 // configure your app for the production environment
 
 $app['eqt.entity_class_path'] = 'EQT\Api\Entity';
@@ -21,7 +23,7 @@ $app['security.jwt'] = [
     'algorithm'  => ['HS256'],
     'options'    => [
         'username_claim' => 'name', // default name, option specifying claim containing username
-        'header_name' => 'X-Access-Token', // default null, option for usage normal oauth2 header
+        'header_name' => 'X-EQTAccess-Token', // default null, option for usage normal oauth2 header
         'token_prefix' => 'Bearer',
     ]
 ];
@@ -33,7 +35,7 @@ $app['security.firewalls'] = [
         'anonymous' => true
     ],
     'public' => [
-        'pattern' => "^{$app['eqt.api.prefix']}/timer$",
+        'pattern' => new RequestMatcher("^{$app['eqt.api.prefix']}/timer/$", null, 'GET'),
         'anonymous' => true
     ],
     'main' => [

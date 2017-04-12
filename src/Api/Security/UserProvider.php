@@ -29,7 +29,7 @@ class UserProvider implements UserProviderInterface {
             throw new UsernameNotFoundException(sprintf('Username "%s" does not exist.', $username));
         }
         
-        return Utility::mapRequest($user, $this->entity);
+        return Utility::mapRequest($user, $this->entity());
     }
 
     public function refreshUser(UserInterface $user)

@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class User extends AbstractEntity implements UserInterface {
 
-    public $plain_password;
+    private $plain_password;
 
     public static $serialization_black_list = [
         'password'
@@ -39,26 +39,25 @@ class User extends AbstractEntity implements UserInterface {
         parent::__construct();
     }
     
-    public function beforeSave(Array &$data) {
-        unset($data['plain_password']);
-    }
-
-    public function save(Connection $db) {
+    public function beforeSave() {
         if (!$this->plain_password) {
-            throw new \Exception('No password to serialize');         
+            throw new \Exception('No password to serialize');
         }
 
-        $this->updatePassword();        
-        
-        parent::save($db);
+        $this->updatePassword();
     }
-    
+
     public function update(Connection $db) {
         if ($this->plain_password !== null) {
             $this->updatePassword();
         }
         
         parent::update($db);
+    }
+    
+    public function setPlainPassword($password){
+        $this->plain_password = $password;
+        return $this;
     }
 
     public function getUsername(){

@@ -43,10 +43,10 @@ abstract class AbstractEntity {
         return $ret;
     }
 
-    public function beforeSave(Array &$data){}
+    public function beforeSave(){}
     public function afterSave(Array $data, $id){}
 
-    public function beforeUpdate(Array &$data){}
+    public function beforeUpdate(){}
     public function afterUpdate(Array $data){}
 
     public function setId($id) {
@@ -67,12 +67,12 @@ abstract class AbstractEntity {
     }
 
     public function save(Connection $db){
-        $data = get_object_vars($this);
+        $this->beforeSave();
         
-        unset($data['black_list']);
+        $data = get_object_vars($this);
+        unset($data['serialization_black_list']);
         unset($data['id']);
         
-        $this->beforeSave($data);
 
         try {
             $db->insert($this->resolveTableName(), $data, [ 'created_at' => 'datetime'] );
@@ -110,19 +110,19 @@ abstract class AbstractEntity {
         return $db->fetchAll($query);
     }
     
-    public static function getBy(Connection $db, $id){
+    public static function getBy(Connection $db, $id, $field = 'id'){
         $table = self::resolveTableName();
         $query = "select * from {$table} 
-                  where id  = ? and deleted_at is null 
+                  where {$field}  = ? and deleted_at is null 
                   limit 1";
         
         return $db->fetchAssoc($query, [ $id ]);
     }
 
-    public static function hasItem(Connection $db, $id) {
+    public static function hasItem(Connection $db, $id, $field = 'id') {
         $table = self::resolveTableName();
         $query = "select count(*) as count from {$table} 
-                  where id  = ? and deleted_at is null 
+                  where {$field}  = ? and deleted_at is null 
                   limit 1";
 
         return $db->fetchAssoc($query, [ $id ])['count'] > 0;

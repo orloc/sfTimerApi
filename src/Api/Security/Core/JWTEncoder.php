@@ -2,11 +2,11 @@
 
 namespace EQT\Api\Security\Core;
 
-use Firebase\JWT\ExpiredException;
+use EQT\Api\Entity\User;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use \Firebase\JWT\JWT;
 
-class JWTEncoder implements TokenEncoderInterface
+class JWTEncoder
 {
 
     /**
@@ -47,8 +47,13 @@ class JWTEncoder implements TokenEncoderInterface
      *
      * @return string
      */
-    public function encode($data)
+    public function encode(User $user)
     {
+        $data = [
+            'id' => $user->getId(),
+            'username' => $user->getUsername(),
+            'role' => $user->getRoles()
+        ];
         $data['exp'] = time() + $this->lifeTime;
 
         return JWT::encode($data, $this->secretKey);

@@ -12,3 +12,7 @@ $app['eqt.jwt_encoder'] = function ($app) {
 $app['eqt.models.user'] = function()  use ($app) { 
     return new \EQT\Api\Entity\User($app['security.encoder_factory']);
 };
+
+$app['eqt.managers.user'] = function()  use ($app) {
+    return new \EQT\Api\Manager\UserManager($app['security.encoder_factory']);
+};
