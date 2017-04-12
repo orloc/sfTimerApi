@@ -43,17 +43,16 @@ class SecurityController implements ControllerProviderInterface {
 
         try {
             $user = $this->user_provider->loadUserByUsername($data['username']);
+            
+            if( !$this->app['security.encoder.bcrypt']->isPasswordValid($user->getPassword(), $data['password'], '')) {
+                $this->app->abort(Response::HTTP_UNAUTHORIZED, 'Invalid password');
+            }
+
+            return Utility::JsonResponse($this->packageToken($this->encoder->encode($user)), Response::HTTP_OK);
+            
         } catch (UsernameNotFoundException $e){
             $this->app->abort(Response::HTTP_NOT_FOUND, sprintf('Username "%s" does not exist', $data['username']));
-        } catch (\Exception $e){
-            $this->app->abort(Response::HTTP_INTERNAL_SERVER_ERROR, $e->getMessage());  
-        }
-
-        if( !$this->app['security.encoder.bcrypt']->isPasswordValid($user->getPassword(), $data['password'], '')) {
-            $this->app->abort(Response::HTTP_UNAUTHORIZED, 'Invalid password');
-        }
-        
-        return Utility::JsonResponse($this->packageToken($this->encoder->encode($user)), Response::HTTP_OK);
+        } 
     }
     
     public function register(Request $request) {

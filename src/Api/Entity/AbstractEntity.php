@@ -106,7 +106,7 @@ abstract class AbstractEntity {
 
     public static function all(Connection $db, $filter = [], $order = []){
         $table = self::resolveTableName();
-        $query = "select * from {$table}";
+        $query = "select * from {$table} where deleted_at is null";
         return $db->fetchAll($query);
     }
     
