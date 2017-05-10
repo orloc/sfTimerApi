@@ -12,16 +12,16 @@ class Timer extends AbstractEntity {
 
     protected $label;
     
-    protected $user_id; 
+    protected $created_by; 
     
     protected $timer_group_id;
     
     static public function loadValidatorMetadata(ClassMetadata $metadata){
         $metadata->addPropertyConstraints('duration',[new Assert\NotBlank()]);
         $metadata->addPropertyConstraints('label',[new Assert\NotBlank()]);
-        $metadata->addPropertyConstraints('user_id',[new Assert\NotBlank()]);
+        $metadata->addPropertyConstraints('timer_group_id',[new Assert\NotBlank()]);
     }
-
+    
 
     public function getDuration(){
         return $this->duration;
@@ -41,12 +41,12 @@ class Timer extends AbstractEntity {
         return $this;
     }
 
-    public function getUserId(){
-        return $this->user_id;
+    public function getCreatedBy(){
+        return $this->created_by;
     }
 
-    public function setUserId($user_id){
-        $this->user_id = $user_id;
+    public function setCreatedBy($user_id){
+        $this->created_by = $user_id;
         return $this;
     }
 

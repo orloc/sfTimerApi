@@ -44,7 +44,7 @@ class User extends AbstractEntity implements UserInterface {
         parent::__construct();
     }
     
-    public function beforeSave() {
+    public function beforeSave(Connection $db) {
         if (!$this->plain_password) {
             throw new \Exception('No password to serialize');
         }

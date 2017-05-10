@@ -17,6 +17,8 @@ abstract class AbstractEntity {
     protected $deleted_at;
     
     public static $serialization_black_list = [];
+    
+    public static $transact_on_create = false;
 
     public function __construct(){
         $this->created_at = new \DateTime();
@@ -43,11 +45,11 @@ abstract class AbstractEntity {
         return $ret;
     }
 
-    public function beforeSave(){}
-    public function afterSave(Array $data, $id){}
+    public function beforeSave(Connection $db){}
+    public function afterSave(AbstractEntity $entity, Connection $db){}
 
-    public function beforeUpdate(){}
-    public function afterUpdate(Array $data){}
+    public function beforeUpdate(Connection $db){}
+    public function afterUpdate(Array $data, Connection $db){}
 
     public function setId($id) {
         $this->id = $id; 
@@ -67,22 +69,32 @@ abstract class AbstractEntity {
     }
 
     public function save(Connection $db){
-        $this->beforeSave();
+        $this->beforeSave($db);
         
         $data = get_object_vars($this);
         unset($data['serialization_black_list']);
         unset($data['id']);
         
+        if (static::$transact_on_create) {
+            $db->beginTransaction();
+        }
 
         try {
             $db->insert($this->resolveTableName(), $data, [ 'created_at' => 'datetime'] );
         } catch (ConstraintViolationException $e) {
+            if (static::$transact_on_create) {
+                $db->rollBack();
+            }
             throw new ConflictHttpException($e->getMessage(), $e);
         }
         $id =  $db->lastInsertId();
         $this->setId($id);
         
-        $this->afterSave($data, $id);
+        $this->afterSave($this, $db);
+        
+        if (static::$transact_on_create){
+            $db->commit();
+        }
     }
 
     public function update(Connection $db){
@@ -93,15 +105,11 @@ abstract class AbstractEntity {
         unset($data['created_at']);
         unset($data['black_list']);
 
-        $this->beforeUpdate($data);
-        
         try {
             $db->update($this->resolveTableName(), $data, [ 'id' => $id]);
         } catch (ConstraintViolationException $e) {
             throw new ConflictHttpException($e->getMessage(), $e);
         }
-        
-        $this->afterUpdate($data);
     }
 
     public static function all(Connection $db, $filter = [], $order = []){

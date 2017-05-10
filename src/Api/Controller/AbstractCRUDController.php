@@ -12,14 +12,16 @@ abstract class AbstractCRUDController {
 
     protected $app;
     protected $db;
+    protected $jwtAuthenticator;
     
     public function __construct(Application $app){
         $this->app = $app;
         $this->db = $app['db'];
+        $this->jwtAuthenticator = $app['eqt.jwt_authenticator'];
     }
     
-    public function beforeCreate(Request $request){}
-    public function beforeUpdate(Request $request, $id){}
+    public function beforeCreate(AbstractEntity $entity){}
+    public function beforeUpdate(AbstractEntity $entity){}
 
     public function afterCreate(AbstractEntity $entity){}
     public function afterUpdate(AbstractEntity $entity){}
@@ -53,11 +55,12 @@ abstract class AbstractCRUDController {
     public function create(Request $request){
         $class = $this->getEntityClass();
         
-        $this->beforeCreate($request);
         
         $entity = $this->validateInput($request->request->all(), 
             is_object($class) ? $class : new $class()
         );
+
+        $this->beforeCreate($entity);
         
         $entity->save($this->db);
 
@@ -73,12 +76,12 @@ abstract class AbstractCRUDController {
         if (!$className::hasItem($this->db, $id)) {
             $this->app->abort(Response::HTTP_NOT_FOUND, "{$className} {$id} not found");
         }
-        
-        $this->beforeUpdate($request, $id);
 
         $entity = $this->validateInput(array_merge($request->request->all(), [ 'id' => $id]), 
             is_object($class) ? $class : new $class()
         );
+
+        $this->beforeUpdate($entity);
 
         $entity->update($this->db);
 

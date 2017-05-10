@@ -7,8 +7,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class TimerGroupController extends AbstractCRUDController implements ControllerProviderInterface {
 
-    protected $jwtAuthenticator;
-    
     public function connect(Application $app){
         $controllers = $app['controllers_factory'];
         $controllers->get('', [$this, 'all']);
@@ -17,8 +15,6 @@ class TimerGroupController extends AbstractCRUDController implements ControllerP
         $controllers->post('', [$this,'create']);
         $controllers->patch('/{id}', [$this, 'update']);
         $controllers->delete('/{id}', [$this, 'delete']);
-
-        $this->jwtAuthenticator = $app['eqt.jwt_authenticator'];
 
         return $controllers;
     }
