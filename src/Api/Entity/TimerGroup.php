@@ -5,16 +5,19 @@ use Symfony\Component\Validator\Mapping\ClassMetadata;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class TimerGroup extends AbstractEntity {
-    
+
+    const PRIVILEGE_OWNER = 'OWNER';
+    const PRIVILEGE_READ = 'READ';
+    const PRIVILEGE_WRITE = 'WRITE';
+
     protected $name;
 
     protected $description;
 
-    protected $user_id; 
+    protected $created_by;
     
     static public function loadValidatorMetadata(ClassMetadata $metadata){
         $metadata->addPropertyConstraints('name', [new Assert\NotBlank()]);
-        $metadata->addPropertyConstraints('user_id', [new Assert\NotBlank()]);
     }
 
     public function getName() {
@@ -35,12 +38,12 @@ class TimerGroup extends AbstractEntity {
         return $this;
     }
     
-    public function getUserId(){
-        return $this->user_id;
+    public function getCreatedBy(){
+        return $this->created_by;
     }
-
-    public function setUserId($user_id){
-        $this->user_id = $user_id;
+    
+    public function setCreatedBY($created_by){
+        $this->created_by = $created_by;
         return $this;
     }
 }

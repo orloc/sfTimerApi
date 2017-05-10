@@ -2,6 +2,7 @@
 
 namespace EQT\Api\Controller;
 
+use EQT\Api\Entity\AbstractEntity;
 use EQT\Api\Utility;
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,6 +17,12 @@ abstract class AbstractCRUDController {
         $this->app = $app;
         $this->db = $app['db'];
     }
+    
+    public function beforeCreate(Request $request){}
+    public function beforeUpdate(Request $request, $id){}
+
+    public function afterCreate(AbstractEntity $entity){}
+    public function afterUpdate(AbstractEntity $entity){}
 
     public function all(Request $request){
         $class = $this->getEntityClass();
@@ -46,11 +53,15 @@ abstract class AbstractCRUDController {
     public function create(Request $request){
         $class = $this->getEntityClass();
         
+        $this->beforeCreate($request);
+        
         $entity = $this->validateInput($request->request->all(), 
             is_object($class) ? $class : new $class()
         );
         
         $entity->save($this->db);
+
+        $this->afterCreate($entity);
 
         return Utility::JsonResponse($entity->serialize(), Response::HTTP_CREATED);
     }
@@ -62,12 +73,16 @@ abstract class AbstractCRUDController {
         if (!$className::hasItem($this->db, $id)) {
             $this->app->abort(Response::HTTP_NOT_FOUND, "{$className} {$id} not found");
         }
+        
+        $this->beforeUpdate($request, $id);
 
         $entity = $this->validateInput(array_merge($request->request->all(), [ 'id' => $id]), 
             is_object($class) ? $class : new $class()
         );
 
         $entity->update($this->db);
+
+        $this->afterUpdate($entity);
 
         return Utility::JsonResponse($entity->serialize(), Response::HTTP_OK);
     }

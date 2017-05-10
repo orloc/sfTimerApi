@@ -35,6 +35,10 @@ $app->before(function(Request $request, Application $app){
     }
 });
 
+$app->before(function(Request $request, Application $app){
+
+});
+
 require __DIR__.'/routes.php';
 
 $app->finish(function(Request $request, Response $response) use ($app) {

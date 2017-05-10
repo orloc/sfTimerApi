@@ -1,6 +1,6 @@
 <?php
 
-$prefix = $app['eqt.api.prefix'];"/api/v1";
+$prefix = $app['eqt.api.prefix'];
 
 $authController = new \EQT\Api\Controller\SecurityController($app);
 
