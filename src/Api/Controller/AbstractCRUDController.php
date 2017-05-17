@@ -26,13 +26,13 @@ abstract class AbstractCRUDController {
     public function afterCreate(AbstractEntity $entity){}
     public function afterUpdate(AbstractEntity $entity){}
 
-    public function all(Request $request){
+    public function all(Request $request, $filters = []){
         $class = $this->getEntityClass();
         $className = is_object($class) ? get_class($class) : $class;
         
         $objects = array_map(function($i) use ($class) {
             return Utility::mapRequest($i, is_object($class) ? $class : new $class())->serialize();
-        }, $className::all($this->db));
+        }, $className::all($this->db, $filters));
         
         return Utility::JsonResponse($objects, Response::HTTP_OK);
     }
@@ -41,7 +41,7 @@ abstract class AbstractCRUDController {
         $class = $this->getEntityClass();
         $className = is_object($class) ? get_class($class) : $class;
         
-        $entity = $className::getBy($this->db, $id);
+        $entity = $className::getBy($this->db, [ 'id' => $id ]);
 
         if (!$entity){
             $this->app->abort(Response::HTTP_NOT_FOUND, "{$class} {$id} not found");
@@ -73,7 +73,7 @@ abstract class AbstractCRUDController {
         $class = $this->getEntityClass();
         $className = is_object($class) ? get_class($class) : $class;
         
-        if (!$className::hasItem($this->db, $id)) {
+        if (!$className::hasItem($this->db, ['id' => $id])) {
             $this->app->abort(Response::HTTP_NOT_FOUND, "{$className} {$id} not found");
         }
 

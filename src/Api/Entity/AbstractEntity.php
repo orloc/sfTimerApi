@@ -20,6 +20,8 @@ abstract class AbstractEntity {
     
     public static $transact_on_create = false;
 
+    public static $join_table = null;
+
     public function __construct(){
         $this->created_at = new \DateTime();
     }
@@ -112,28 +114,36 @@ abstract class AbstractEntity {
         }
     }
 
-    public static function all(Connection $db, $filter = [], $order = []){
+    public static function all(Connection $db, $filtersArr = [], $order = []){
         $table = self::resolveTableName();
-        $query = "select * from {$table} where deleted_at is null";
-        return $db->fetchAll($query);
-    }
-    
-    public static function getBy(Connection $db, $id, $field = 'id'){
-        $table = self::resolveTableName();
-        $query = "select * from {$table} 
-                  where {$field}  = ? and deleted_at is null 
-                  limit 1";
         
-        return $db->fetchAssoc($query, [ $id ]);
+        $suggestedFilters = array_merge($filtersArr, ['deleted_at' => null]);
+        list($filters, $values) = self::buildWhere($suggestedFilters);
+
+        $query = "select {$table}.* from {$table} where {$filters}";
+
+        return $db->fetchAll($query, $values);
     }
 
-    public static function hasItem(Connection $db, $id, $field = 'id') {
+    public static function getBy(Connection $db, $filtersArr = []){
         $table = self::resolveTableName();
-        $query = "select count(*) as count from {$table} 
-                  where {$field}  = ? and deleted_at is null 
-                  limit 1";
 
-        return $db->fetchAssoc($query, [ $id ])['count'] > 0;
+        $suggestedFilters = array_merge($filtersArr, ['deleted_at' => null]);
+        list($filters, $values) = self::buildWhere($suggestedFilters);
+
+        $query = "select * from {$table} where {$filters} limit 1";
+
+        return $db->fetchAssoc($query, $values);
+    }
+
+    public static function hasItem(Connection $db, $filtersArr = []) {
+        $table = self::resolveTableName();
+        $suggestedFilters = array_merge($filtersArr, ['deleted_at' => null]);
+
+        list($filters, $values) = self::buildWhere($suggestedFilters);
+        $query = "select count(*) from {$table} where {$filters} limit 1";
+
+        return $db->fetchAssoc($query, $values)['count'] > 0;
     }
 
     public static function delete(Connection $db, $id){
@@ -141,6 +151,20 @@ abstract class AbstractEntity {
             'datetime'
         ]);
     }
+
+    protected static function buildWhere($filters = []){
+        $values = [];
+        $query  = join(" AND ", array_map(function($val, $key) use (&$values) {
+            if ($val === null){
+                return "{$key} IS null";
+            }
+            array_push($values, $val);
+            return "{$key} = ?";
+        }, $filters, array_keys($filters)));
+
+        return [$query, $values];
+    }
+
 
     protected static function resolveTableName() {
         $reflect = new \ReflectionClass(static::class);

@@ -15,7 +15,7 @@ $app->mount('', $factory);
 
 foreach ($controllers as $k => $c) {
     $factory = $c->connect($app);
-    $app->mount("{$prefix}/{$k}", $factory);
+    $app->mount("{$prefix}", $factory);
 }
 
 

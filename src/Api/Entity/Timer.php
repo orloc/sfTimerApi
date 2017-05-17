@@ -15,6 +15,8 @@ class Timer extends AbstractEntity {
     protected $created_by; 
     
     protected $timer_group_id;
+
+    public static $join_table = 'timer_groups';
     
     static public function loadValidatorMetadata(ClassMetadata $metadata){
         $metadata->addPropertyConstraints('duration',[new Assert\NotBlank()]);

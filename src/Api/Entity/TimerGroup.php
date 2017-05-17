@@ -13,7 +13,7 @@ class TimerGroup extends AbstractEntity {
     const PRIVILEGE_READ = 'READ';
     const PRIVILEGE_WRITE = 'WRITE';
 
-    const JOIN_TABLE = 'users_timer_groups';
+    public static $join_table = 'users_timer_groups';
 
     public static $transact_on_create = true;
 
@@ -67,7 +67,7 @@ class TimerGroup extends AbstractEntity {
         ];
 
         try {
-            $db->insert(self::JOIN_TABLE, $rowData, [ 'created_at' => 'datetime'] );
+            $db->insert(self::$join_table, $rowData, [ 'created_at' => 'datetime'] );
         } catch (ConstraintViolationException $e) {
             $db->rollBack();
             throw new ConflictHttpException($e->getMessage(), $e);

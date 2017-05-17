@@ -34,10 +34,6 @@ $app['security.firewalls'] = [
         'pattern' => 'login|register',
         'anonymous' => true
     ],
-    'public' => [
-        'pattern' => new RequestMatcher("^{$app['eqt.api.prefix']}/timer/$", null, 'GET'),
-        'anonymous' => true
-    ],
     'main' => [
         'pattern' => new RequestMatcher('^/api', null, ['POST', 'GET', 'DELETE', 'PUT']),
         'logout' => [ 'logout_path' => '/logout' ],
@@ -57,7 +53,6 @@ $app['security.role_hierarchy'] = [
     'ROLE_MEMBER' => [ 'ROLE_USER' ],
 ];
 $app['security.access_rules'] = [
-    ["^{$app['eqt.api.prefix']}/timer-group", 'ROLE_MEMBER'],
     ["^{$app['eqt.api.prefix']}/user", 'ROLE_ADMIN'],
 ];
 

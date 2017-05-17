@@ -12,15 +12,22 @@ class TimerController extends AbstractCRUDController implements ControllerProvid
 
     public function connect(Application $app){
         $controllers = $app['controllers_factory'];
-        $controllers->get('', [$this, 'all']);
-        $controllers->get('/{id}', [$this, 'getBy']);
-
-        $controllers->post('', [$this,'create']);
-        $controllers->patch('/{id}', [$this, 'update']);
-        $controllers->delete('/{id}', [$this, 'delete']);
-
+        
+        $controllers->get('/timer-group/{timerGroup}/timer', [$this, 'getTimersByGroup']);
+        $controllers->get('/timer-group/{timerGroup}/timer/{id}', [$this, 'getBy']);
+        $controllers->post('/timer-group/{timerGroup}/timer', [$this,'create']);
 
         return $controllers;
+    }
+
+    public function getTimersByGroup(Request $request, $timerGroup){
+        $user = $this->jwtAuthenticator->getCredentials($request);
+        
+        // check user access to group 
+        
+        $filters = [ 'timer_group_id' => $timerGroup ];
+        return parent::all($request, $filters);
+
     }
 
     public function create(Request $request) {
