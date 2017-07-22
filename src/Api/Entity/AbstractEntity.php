@@ -139,10 +139,12 @@ abstract class AbstractEntity {
     public static function hasItem(Connection $db, $filtersArr = []) {
         $table = self::resolveTableName();
         $suggestedFilters = array_merge($filtersArr, ['deleted_at' => null]);
-
+        
         list($filters, $values) = self::buildWhere($suggestedFilters);
-        $query = "select count(*) from {$table} where {$filters} limit 1";
-
+        $query = "select count(*) as 'count' 
+                  from {$table} 
+                  where {$filters} limit 1";
+        
         return $db->fetchAssoc($query, $values)['count'] > 0;
     }
 

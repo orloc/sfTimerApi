@@ -19,4 +19,4 @@ foreach ($controllers as $k => $c) {
 }
 
 
-
+$app["cors-enabled"]($app);

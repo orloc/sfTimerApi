@@ -57,6 +57,18 @@ class TimerGroup extends AbstractEntity {
         $this->created_by = $created_by;
         return $this;
     }
+    
+    public static function isTimerOwner(Connection $db, $groupId, $timerId){
+        $table = self::resolveTableName();
+        $query = "select count(t.id) as 'exists'
+                  from {$table} tg
+                  join timers t on t.timer_group_id = tg.id
+                  where tg.id = ?
+                  and t.id = ?
+        ";
+        
+        return $db->fetchAssoc($query, [ $groupId, $timerId]);
+    }
 
     private function createJoinRecord(Connection $db, $data){
         $rowData = [

@@ -94,7 +94,7 @@ abstract class AbstractCRUDController {
         $class = $this->getEntityClass();
         $className = is_object($class) ? get_class($class) : $class;
         
-        if (!$className::hasItem($this->db, $id)) {
+        if (!$className::hasItem($this->db, [ 'id' => $id])) {
             $this->app->abort(Response::HTTP_NOT_FOUND, "{$className} {$id} not found");
         }
 

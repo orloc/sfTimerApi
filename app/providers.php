@@ -1,12 +1,8 @@
 <?php
 
-use Silex\Provider\AssetServiceProvider;
-use Silex\Provider\TwigServiceProvider;
 use Silex\Provider\ServiceControllerServiceProvider;
-use Silex\Provider\HttpFragmentServiceProvider;
 use Silex\Provider\SerializerServiceProvider;
 use Silex\Provider\ValidatorServiceProvider;
-use Predis\Silex\ClientServiceProvider;
 use JDesrosiers\Silex\Provider\CorsServiceProvider;
 use Silex\Provider\DoctrineServiceProvider;
 
