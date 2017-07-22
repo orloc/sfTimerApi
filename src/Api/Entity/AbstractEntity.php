@@ -106,11 +106,11 @@ abstract class AbstractEntity {
 
     public function update(Connection $db){
         $data = get_object_vars($this);
-        $columns = $this->getUpdateFields();
+        $columns = array_flip($this->getUpdateFields());
         $id = $data['id'];
         
         if (count($columns)){
-            $fields = array_filter($data, function($data, $k) use($columns){
+            $fields = array_filter($data, function($d, $k) use($columns){
                 return isset($columns[$k]);
             }, ARRAY_FILTER_USE_BOTH);
         } else {

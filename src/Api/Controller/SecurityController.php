@@ -37,12 +37,15 @@ class SecurityController implements ControllerProviderInterface {
 
         $data = $request->request->all();
         
+        
         if (!isset($data['username']) || !isset($data['password'])){
             $this->app->abort(Response::HTTP_BAD_REQUEST, "Unable to process request - bad fields");
         }
 
         try {
             $user = $this->user_provider->loadUserByUsername($data['username']);
+            var_dump($user);
+            die;
             
             if( !$this->app['security.encoder.bcrypt']->isPasswordValid($user->getPassword(), $data['password'], '')) {
                 $this->app->abort(Response::HTTP_UNAUTHORIZED, 'Invalid password');

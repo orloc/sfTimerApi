@@ -20,6 +20,7 @@ class UserManager {
         
         $user->setUsername($username)
              ->setRoles($role)
+             ->setCreatedAt(new \DateTime())
              ->setPlainPassword($password);
         
         return $user;

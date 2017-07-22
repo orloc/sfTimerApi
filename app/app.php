@@ -9,7 +9,11 @@ use EQT\Api\Utility;
 $app = new Application();
 
 require __DIR__.'/providers.php'; // needs to come first so we don't over-ride our config
-require __DIR__.'/config/dev.php';
+if (isset($_ENV['TEST_ENV']) && $_ENV['TEST_ENV'] === true ){
+    require __DIR__.'/config/test.php';
+} else {
+    require __DIR__.'/config/dev.php';
+}
 require __DIR__.'/services.php';
 
 $app->before(function(Request $request, Application $app){
