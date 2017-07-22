@@ -6,6 +6,7 @@ use Doctrine\Common\Inflector\Inflector;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception\ConstraintViolationException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 abstract class AbstractEntity {
@@ -21,10 +22,14 @@ abstract class AbstractEntity {
     public static $transact_on_create = false;
 
     public static $join_table = null;
+    
+    abstract public function getUpdateFields();
 
-    public function __construct(){
-        $this->created_at = new \DateTime();
-    }
+    abstract public function beforeSave(Connection $db);
+    abstract public function afterSave(AbstractEntity $entity, Connection $db);
+
+    abstract public function beforeUpdate(Connection $db);
+    abstract function afterUpdate(Array $data, Connection $db);
     
     public function serialize()
     {
@@ -47,12 +52,6 @@ abstract class AbstractEntity {
         return $ret;
     }
 
-    public function beforeSave(Connection $db){}
-    public function afterSave(AbstractEntity $entity, Connection $db){}
-
-    public function beforeUpdate(Connection $db){}
-    public function afterUpdate(Array $data, Connection $db){}
-
     public function setId($id) {
         $this->id = $id; 
         return $this;
@@ -60,6 +59,11 @@ abstract class AbstractEntity {
 
     public function getId(){
         return $this->id;
+    }
+    
+    public function setCreatedAt(\DateTime $time){
+        $this->created_at = $time;
+        return $this;
     }
 
     public function getCreatedAt(){
@@ -73,6 +77,7 @@ abstract class AbstractEntity {
     public function save(Connection $db){
         $this->beforeSave($db);
         
+        $this->setCreatedAt(new  \DateTime());
         $data = get_object_vars($this);
         unset($data['serialization_black_list']);
         unset($data['id']);
@@ -101,16 +106,21 @@ abstract class AbstractEntity {
 
     public function update(Connection $db){
         $data = get_object_vars($this);
+        $columns = $this->getUpdateFields();
         $id = $data['id'];
         
-        unset($data['id']);
-        unset($data['created_at']);
-        unset($data['black_list']);
-
+        if (count($columns)){
+            $fields = array_filter($data, function($data, $k) use($columns){
+                return isset($columns[$k]);
+            }, ARRAY_FILTER_USE_BOTH);
+        } else {
+            $fields = $data;  
+        }
+        
         try {
-            $db->update($this->resolveTableName(), $data, [ 'id' => $id]);
+            $db->update($this->resolveTableName(), $fields, [ 'id' => $id]);
         } catch (ConstraintViolationException $e) {
-            throw new ConflictHttpException($e->getMessage(), $e);
+            throw new HttpException(500, $e->getMessage(), $e);
         }
     }
 

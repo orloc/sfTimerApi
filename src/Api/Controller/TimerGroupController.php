@@ -13,6 +13,7 @@ class TimerGroupController extends AbstractCRUDController implements ControllerP
         $controllers->get('/timer-group/{id}', [$this, 'getBy']);
 
         $controllers->post('/timer-group', [$this,'create']);
+        $controllers->patch('/timer-group/{id}', [$this,'update']);
         $controllers->delete('/timer-group/{id}', [$this, 'delete']);
 
         return $controllers;

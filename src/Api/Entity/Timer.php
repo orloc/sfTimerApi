@@ -2,6 +2,7 @@
 namespace EQT\Api\Entity;
 
 use Symfony\Component\Validator\Mapping\ClassMetadata;
+use Doctrine\DBAL\Connection;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class Timer extends AbstractEntity {
@@ -23,7 +24,26 @@ class Timer extends AbstractEntity {
         $metadata->addPropertyConstraints('label',[new Assert\NotBlank()]);
         $metadata->addPropertyConstraints('timer_group_id',[new Assert\NotBlank()]);
     }
+
+    public function beforeSave(Connection $db) {
+        return false;
+        
+    }
+    public function afterSave(AbstractEntity $entity, Connection $db) {
+        return false;
+    }
+
+    public function beforeUpdate(Connection $db){
+        return false;
+    }
     
+    function afterUpdate(Array $data, Connection $db){
+        return false;
+    }
+
+    public function getUpdateFields(){
+        return ['label', 'duration'];
+    }
 
     public function getDuration(){
         return $this->duration;

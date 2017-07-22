@@ -23,6 +23,22 @@ class TimerGroup extends AbstractEntity {
 
     protected $created_by;
     
+    public function getUpdateFields(){
+        return ['name', 'description'];
+    }
+
+    public function beforeSave(Connection $db) {
+        return false;
+    }
+
+    public function beforeUpdate(Connection $db){
+        return false;
+    }
+
+    function afterUpdate(Array $data, Connection $db){
+        return false;
+    }
+
     static public function loadValidatorMetadata(ClassMetadata $metadata){
         $metadata->addPropertyConstraints('name', [new Assert\NotBlank()]);
     }

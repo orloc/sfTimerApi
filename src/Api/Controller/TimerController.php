@@ -49,14 +49,14 @@ class TimerController extends AbstractCRUDController implements ControllerProvid
     public function create(Request $request) {
         $user = $this->jwtAuthenticator->getCredentials($request);
         $content = $request->request->all();
-
-        $request->request->replace(array_merge($content, [ 'created_by' => $user['id']]));
+        $body = array_merge($content, [ 'created_by' => $user['id']]); 
+        $request->request->replace($body);
 
         return parent::create($request);
     }
     
     public function beforeCreate(AbstractEntity $entity) {
-        if (!TimerGroup::hasItem($this->db, $entity->getTimerGroupId())) {
+        if (!TimerGroup::hasItem($this->db, [ 'id' => intval($entity->getTimerGroupId())] )) {
             $this->app->abort(Response::HTTP_NOT_FOUND, 'Invalid timer group');
         }
     }

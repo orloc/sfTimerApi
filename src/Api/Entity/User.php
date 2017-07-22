@@ -40,8 +40,6 @@ class User extends AbstractEntity implements UserInterface {
     
     public function __construct(EncoderFactoryInterface $encoder){
         $this->encoder_factory = $encoder;
-        
-        parent::__construct();
     }
     
     public function beforeSave(Connection $db) {
@@ -52,7 +50,23 @@ class User extends AbstractEntity implements UserInterface {
         $this->updatePassword();
     }
 
-    public function update(Connection $db) {
+    public function afterSave(AbstractEntity $entity, Connection $db) {
+        return false;
+    }
+
+    public function beforeUpdate(Connection $db){
+        return false;
+    }
+
+    function afterUpdate(Array $data, Connection $db){
+        return false;
+    }
+
+    public function getUpdateFields(){
+        return [];
+    }
+
+    public function update(Connection $db, $columns = []) {
         if ($this->plain_password !== null) {
             $this->updatePassword();
         }
