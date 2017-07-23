@@ -22,9 +22,11 @@ abstract class AbstractCRUDController {
     
     public function beforeCreate(AbstractEntity $entity){}
     public function beforeUpdate(AbstractEntity $entity){}
+    public function beforeDelete($id){}
 
     public function afterCreate(AbstractEntity $entity){}
     public function afterUpdate(AbstractEntity $entity){}
+    public function afterDelete($id){}
 
     public function all(Request $request, $filters = []){
         $class = $this->getEntityClass();
@@ -98,7 +100,9 @@ abstract class AbstractCRUDController {
             $this->app->abort(Response::HTTP_NOT_FOUND, "{$className} {$id} not found");
         }
 
+        $this->beforeDelete($id);
         $className::delete($this->db, $id);
+        $this->afterDelete($id);
 
         return Utility::JsonResponse([ 'id' => $id ], Response::HTTP_OK);
     }
