@@ -10,6 +10,8 @@ class Timer extends AbstractEntity {
     protected $duration;
 
     protected $last_tick;
+    
+    protected $start_time;
 
     protected $label;
     
@@ -98,6 +100,15 @@ class Timer extends AbstractEntity {
     
     public function setLastTick($lastTick){
         $this->last_tick = $lastTick;
+        return $this;
+    }
+
+    public function getStartTime(){
+        return $this->last_tick;
+    }
+
+    public function setStartTime($startTime){
+        $this->start_time = \DateTime::createFromFormat('U', $startTime);
         return $this;
     }
 }
