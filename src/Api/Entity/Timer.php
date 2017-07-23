@@ -13,6 +13,8 @@ class Timer extends AbstractEntity {
 
     protected $label;
     
+    protected $running;
+    
     protected $created_by; 
     
     protected $timer_group_id;
@@ -26,9 +28,9 @@ class Timer extends AbstractEntity {
     }
 
     public function beforeSave(Connection $db) {
-        return false;
-        
+        $this->running = 0;
     }
+    
     public function afterSave(AbstractEntity $entity, Connection $db) {
         return false;
     }
@@ -69,6 +71,15 @@ class Timer extends AbstractEntity {
 
     public function setCreatedBy($user_id){
         $this->created_by = $user_id;
+        return $this;
+    }
+    
+    public function isRunning(){
+        return $this->running;
+    }
+    
+    public function setRunning($running){
+        $this->running = boolval($running);
         return $this;
     }
 
