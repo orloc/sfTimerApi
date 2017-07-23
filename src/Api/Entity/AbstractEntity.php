@@ -61,7 +61,10 @@ abstract class AbstractEntity {
         return $this->id;
     }
     
-    public function setCreatedAt(\DateTime $time){
+    public function setCreatedAt($time){
+        if (!$time instanceof \DateTime) {
+            $time = new \DateTime($time);
+        }
         $this->created_at = $time;
         return $this;
     }

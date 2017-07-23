@@ -24,6 +24,7 @@ class UserControllerTest extends WebTestCase
 
     public function createApplication()
     {
+        $_ENV['TEST_ENV'] = true;
         $app = require __DIR__ . '/../app/app.php';
         $app['session.test'] = true;
 

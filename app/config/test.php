@@ -9,7 +9,7 @@ require __DIR__ . '/prod.php';
 $app['db.options'] = [
     'driver'    => 'pdo_mysql',
     'host'      => 'localhost',
-    'dbname'    => 'eq_timers_test',
+    'dbname'    => 'eq_timers',
     'user'      => 'root',
     'password'  => ''
 ];
