@@ -121,7 +121,8 @@ abstract class AbstractEntity {
         }
         
         try {
-            $db->update($this->resolveTableName(), $fields, [ 'id' => $id]);
+            $res = $db->update($this->resolveTableName(), $fields, [ 'id' => $id]);
+            return $res;
         } catch (ConstraintViolationException $e) {
             throw new HttpException(500, $e->getMessage(), $e);
         }

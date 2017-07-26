@@ -19,7 +19,7 @@ $app["cors.allowOrigin"] = "*";
 
 $app['security.jwt'] = [
     'secret_key' => 'Very_secret_key',
-    'life_time'  => 60 * 60 * 3,
+    'life_time'  => 60* 60 * 4,
     'algorithm'  => ['HS256'],
     'options'    => [
         'username_claim' => 'name', // default name, option specifying claim containing username

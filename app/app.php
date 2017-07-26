@@ -39,6 +39,14 @@ $app->before(function(Request $request, Application $app){
 
 require __DIR__.'/routes.php';
 
+$app->after(function(Request $request, Response $response){
+    if($response->getStatusCode() === Response::HTTP_FORBIDDEN){
+        $response->setStatusCode(Response::HTTP_UNAUTHORIZED);   
+    }
+    return $response;
+    
+});
+
 
 /*
 $app->finish(function(Request $request, Response $response) use ($app) {

@@ -46,7 +46,7 @@ class Timer extends AbstractEntity {
     }
 
     public function getUpdateFields(){
-        return ['label', 'duration'];
+        return ['start_time', 'last_tick', 'running'];
     }
 
     public function getDuration(){
@@ -81,7 +81,7 @@ class Timer extends AbstractEntity {
     }
     
     public function setRunning($running){
-        $this->running = boolval($running);
+        $this->running = $running ? 1 : 0;
         return $this;
     }
 
@@ -104,11 +104,11 @@ class Timer extends AbstractEntity {
     }
 
     public function getStartTime(){
-        return $this->last_tick;
+        return $this->start_time;
     }
 
     public function setStartTime($startTime){
-        $this->start_time = \DateTime::createFromFormat('U', $startTime);
+        $this->start_time = $startTime;
         return $this;
     }
 }

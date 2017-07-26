@@ -82,7 +82,7 @@ abstract class AbstractCRUDController {
         $entity = $this->validateInput(array_merge($request->request->all(), [ 'id' => $id]), 
             is_object($class) ? $class : new $class()
         );
-
+        
         $this->beforeUpdate($entity);
 
         $entity->update($this->db);
