@@ -52,6 +52,7 @@ class JWTEncoder
         $data = [
             'id' => $user->getId(),
             'username' => $user->getUsername(),
+            'profile_name' => $user->getProfileName(),
             'role' => $user->getRoles()
         ];
         $data['exp'] = time() + $this->lifeTime;

@@ -15,13 +15,7 @@ class UserController extends AbstractCRUDController implements ControllerProvide
         $controllers = $app['controllers_factory'];
         
         $controllers->get('user/me', [$this, 'getMe']);
-
-        /*
-        $controllers->get('user/{id}', [$this, 'getBy']);
-
-        $controllers->post('user', [$this, 'create']);
-        $controllers->delete('user/{id}', [$this, 'delete']);
-        */
+        $controllers->patch('user', [$this, 'userUpdate']);
 
         return $controllers;
     }
@@ -41,6 +35,23 @@ class UserController extends AbstractCRUDController implements ControllerProvide
     
     public function userUpdate(Request $request){
         $userToken = $this->jwtAuthenticator->getCredentials($request);
+
+        $body = $request->request->all();
+        if (array_diff_key($body, array_flip(User::$update_fields))){
+            $this->app->abort(400, 'Post body mismatch');
+        }
         
+        if ($userToken['id'] !== $body['id']){
+            $this->app->abort(Response::HTTP_FORBIDDEN);
+        }
+        
+        $user = User::getBy($this->db, ['id' => $body['id']]);
+        $entity = Utility::mapRequest($user, $this->app['eqt.models.user']);
+        
+        $entity->setEmail($body['email'])
+            ->setProfileName($body['profile_name'])
+            ->update($this->db);
+
+        return Utility::JsonResponse($entity->serialize(), Response::HTTP_OK);
     }
 }

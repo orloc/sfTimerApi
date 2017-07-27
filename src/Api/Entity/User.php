@@ -18,6 +18,10 @@ class User extends AbstractEntity implements UserInterface {
         'password'
     ];
     
+    public static $update_fields = [
+        'profile_name', 'email', 'id'
+    ];
+    
     protected $username;
     
     protected $profile_name;
