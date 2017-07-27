@@ -19,6 +19,8 @@ class User extends AbstractEntity implements UserInterface {
     ];
     
     protected $username;
+    
+    protected $profile_name;
 
     protected $email;
 
@@ -33,6 +35,7 @@ class User extends AbstractEntity implements UserInterface {
 
     static public function loadValidatorMetadata(ClassMetadata $metadata){
         $metadata->addPropertyConstraints('username',[new Assert\NotBlank()]);
+        $metadata->addPropertyConstraints('profile_name',[new Assert\NotBlank()]);
         $metadata->addPropertyConstraints('type',[new Assert\NotBlank()]);
         $metadata->addPropertyConstraints('plain_password',[new Assert\NotBlank()]);
         $metadata->addPropertyConstraints('roles',[new Assert\NotBlank()]);
