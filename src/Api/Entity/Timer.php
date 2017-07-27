@@ -21,6 +21,8 @@ class Timer extends AbstractEntity {
     
     protected $timer_group_id;
 
+    protected $deleted_at;
+
     public static $join_table = 'timer_groups';
     
     static public function loadValidatorMetadata(ClassMetadata $metadata){
@@ -51,6 +53,10 @@ class Timer extends AbstractEntity {
 
     public function getDuration(){
         return $this->duration;
+    }
+
+    public function getDeletedAt() {
+        return $this->deleted_at;
     }
     
     public function setDuration($duration){

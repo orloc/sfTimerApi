@@ -23,7 +23,7 @@ class TimerGroupController extends AbstractCRUDController implements ControllerP
     public function all(Request $request, $imposedFilters = []) {
         $user = $this->jwtAuthenticator->getCredentials($request);
         
-        return parent::all($request, [ 'created_by' => $user['id']]); 
+        return parent::all($request, [ 'created_by' => $user['id'], 'deleted_at' => null]); 
     }
     
     public function getBy(Request $request, $id)
@@ -33,7 +33,7 @@ class TimerGroupController extends AbstractCRUDController implements ControllerP
     }
     
     public function beforeDelete($id){
-        $existingTimers = Timer::all($this->db, ['timer_group_id' => $id]);
+        $existingTimers = Timer::all($this->db, ['timer_group_id' => $id, 'deleted_at' => null]);
         
         $ids = array_map(function($timer){
             return intval($timer['id']);
@@ -41,6 +41,10 @@ class TimerGroupController extends AbstractCRUDController implements ControllerP
         
         $this->db->executeQuery("update timers set deleted_at=NOW() where id in (?)",
             [$ids], [Connection::PARAM_INT_ARRAY]);
+    }
+    
+    public function afterDelete($id) {
+        $this->db->executeQuery("update users_timer_groups set deleted_at=NOW() where timer_group_id = ?", [$id]);
     }
 
     public function create(Request $request) {

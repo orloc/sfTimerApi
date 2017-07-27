@@ -15,10 +15,12 @@ class UserManager {
         $this->encoder = $encoder;
     }
 
-    public function createUser($username, $password, $role = 'ROLE_MEMBER'){
+    public function createUser($username, $password, $profileName, $role = 'ROLE_MEMBER'){
         $user = new User($this->encoder);
         
         $user->setUsername($username)
+             ->setProfileName($profileName)
+             ->setType(User::TYPE_REGISTERED)
              ->setRoles($role)
              ->setCreatedAt(new \DateTime())
              ->setPlainPassword($password);

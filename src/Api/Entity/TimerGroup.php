@@ -22,6 +22,8 @@ class TimerGroup extends AbstractEntity {
     protected $description;
 
     protected $created_by;
+
+    protected $deleted_at;
     
     public function getUpdateFields(){
         return ['name', 'description'];
@@ -45,6 +47,10 @@ class TimerGroup extends AbstractEntity {
     
     public function afterSave(AbstractEntity $data, Connection $db) {
         $this->createJoinRecord($db, $data);
+    }
+
+    public function getDeletedAt() {
+        return $this->deleted_at;
     }
 
     public function getName() {

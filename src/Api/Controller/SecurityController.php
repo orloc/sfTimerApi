@@ -59,15 +59,19 @@ class SecurityController implements ControllerProviderInterface {
 
         $data = $request->request->all();
 
-        if (!isset($data['username']) || !isset($data['password'])){
+        if (!isset($data['username']) || !isset($data['password']) || !isset($data['profile_name'])){
             $this->app->abort(Response::HTTP_BAD_REQUEST, "Unable to process request - bad fields");
         }
         
-        if (User::hasItem($this->app['db'], $data['username'], 'username')) { 
+        if (User::hasItem($this->app['db'], ['username' => $data['username'], 'deleted_at' => null])) { 
             $this->app->abort(Response::HTTP_CONFLICT, sprintf("Username %s already exists", $data['username']));
         }
+
+        if (User::hasItem($this->app['db'], ['profile_name' => $data['profile_name'], 'deleted_at' => null])) {
+            $this->app->abort(Response::HTTP_CONFLICT, sprintf("Profile name %s already exists", $data['profile_name']));
+        }
         
-        $newUser = $this->user_manager->createUser($data['username'], $data['password']);
+        $newUser = $this->user_manager->createUser($data['username'], $data['password'], $data['profile_name']);
         
         try {
             $newUser->save($this->app['db']);

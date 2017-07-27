@@ -23,11 +23,11 @@ class UserController extends AbstractCRUDController implements ControllerProvide
     public function getMe(Request $request){
         $userToken = $this->jwtAuthenticator->getCredentials($request);
         
-        if (!User::hasItem($this->db, [ 'id' => $userToken['id']])){
+        if (!User::hasItem($this->db, [ 'id' => $userToken['id'], 'deleted_at' => null])){
             $this->app->abort(404, 'User not found'); 
         }
 
-        $user = User::getBy($this->db, ['id' => $userToken['id']]);
+        $user = User::getBy($this->db, ['id' => $userToken['id'], 'deleted_at' => null]);
         $data = Utility::mapRequest($user, $this->app['eqt.models.user'])->serialize();
         
         return Utility::JsonResponse($data, Response::HTTP_OK);
@@ -45,7 +45,7 @@ class UserController extends AbstractCRUDController implements ControllerProvide
             $this->app->abort(Response::HTTP_FORBIDDEN);
         }
         
-        $user = User::getBy($this->db, ['id' => $body['id']]);
+        $user = User::getBy($this->db, ['id' => $body['id'], 'deleted_at' => null]);
         $entity = Utility::mapRequest($user, $this->app['eqt.models.user']);
         
         $entity->setEmail($body['email'])

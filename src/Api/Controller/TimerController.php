@@ -34,7 +34,7 @@ class TimerController extends AbstractCRUDController implements ControllerProvid
         // check that we are allowed to delete this
         $user = $this->jwtAuthenticator->getCredentials($request);
         
-        $exists = TimerGroup::hasItem($this->db, ['id' => $timerGroup]);
+        $exists = TimerGroup::hasItem($this->db, ['id' => $timerGroup, 'deleted_at' => null]);
         if (!$exists){
             $this->app->abort(Response::HTTP_NOT_FOUND, 'Invalid timer group id');
         }
@@ -58,7 +58,7 @@ class TimerController extends AbstractCRUDController implements ControllerProvid
     }
     
     public function beforeCreate(AbstractEntity $entity) {
-        if (!TimerGroup::hasItem($this->db, [ 'id' => intval($entity->getTimerGroupId())] )) {
+        if (!TimerGroup::hasItem($this->db, [ 'id' => intval($entity->getTimerGroupId()), 'deleted_at' => null])) {
             $this->app->abort(Response::HTTP_NOT_FOUND, 'Invalid timer group');
         }
     }

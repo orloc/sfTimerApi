@@ -16,7 +16,7 @@ class GroupInvitation extends AbstractEntity {
     protected $accepted;
     
     protected $accepted_at;
-    
+
     static public function loadValidatorMetadata(ClassMetadata $metadata){
         $metadata->addPropertyConstraints('inviter_id',[new Assert\NotBlank()]);
         $metadata->addPropertyConstraints('invitee_id',[new Assert\NotBlank()]);
@@ -55,6 +55,10 @@ class GroupInvitation extends AbstractEntity {
     public function setInviteeId($id){
         $this->invitee_id = $id;
         return $this;
+    }
+    
+    public function getInviteeId(){
+        return $this->invitee_id;
     }
     
     public function setGroupId($id){

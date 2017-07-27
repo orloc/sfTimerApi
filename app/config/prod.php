@@ -53,6 +53,6 @@ $app['security.role_hierarchy'] = [
     'ROLE_MEMBER' => [ 'ROLE_USER' ],
 ];
 $app['security.access_rules'] = [
-    ["^{$app['eqt.api.prefix']}/user", 'ROLE_ADMIN'],
+    //["^{$app['eqt.api.prefix']}/user", 'ROLE_ADMIN'],
 ];
 

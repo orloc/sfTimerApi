@@ -15,7 +15,6 @@ abstract class AbstractEntity {
 
     protected $created_at;
 
-    protected $deleted_at;
     
     public static $serialization_black_list = [];
     
@@ -73,10 +72,6 @@ abstract class AbstractEntity {
         return $this->created_at;
     }
 
-    public function getDeletedAt() {
-        return $this->deleted_at;
-    }
-
     public function save(Connection $db){
         $this->beforeSave($db);
         
@@ -131,8 +126,7 @@ abstract class AbstractEntity {
     public static function all(Connection $db, $filtersArr = [], $order = []){
         $table = self::resolveTableName();
         
-        $suggestedFilters = array_merge($filtersArr, ['deleted_at' => null]);
-        list($filters, $values) = self::buildWhere($suggestedFilters);
+        list($filters, $values) = self::buildWhere($filtersArr);
 
         $query = "select {$table}.* from {$table} where {$filters}";
 
@@ -142,8 +136,7 @@ abstract class AbstractEntity {
     public static function getBy(Connection $db, $filtersArr = []){
         $table = self::resolveTableName();
 
-        $suggestedFilters = array_merge($filtersArr, ['deleted_at' => null]);
-        list($filters, $values) = self::buildWhere($suggestedFilters);
+        list($filters, $values) = self::buildWhere($filtersArr);
 
         $query = "select * from {$table} where {$filters} limit 1";
 
@@ -152,9 +145,7 @@ abstract class AbstractEntity {
 
     public static function hasItem(Connection $db, $filtersArr = []) {
         $table = self::resolveTableName();
-        $suggestedFilters = array_merge($filtersArr, ['deleted_at' => null]);
-        
-        list($filters, $values) = self::buildWhere($suggestedFilters);
+        list($filters, $values) = self::buildWhere($filtersArr);
         $query = "select count(*) as 'count' 
                   from {$table} 
                   where {$filters} limit 1";

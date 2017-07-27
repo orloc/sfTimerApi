@@ -32,7 +32,9 @@ class User extends AbstractEntity implements UserInterface {
 
     protected $type;
     
-    protected $roles; 
+    protected $roles;
+
+    protected $deleted_at;
     
     private $encoder_factory;
 
@@ -78,6 +80,10 @@ class User extends AbstractEntity implements UserInterface {
         }
         
         parent::update($db);
+    }
+
+    public function getDeletedAt() {
+        return $this->deleted_at;
     }
     
     public function setPlainPassword($password){
