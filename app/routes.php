@@ -7,7 +7,8 @@ $authController = new \EQT\Api\Controller\SecurityController($app);
 $controllers = [
     "timer" => new \EQT\Api\Controller\TimerController($app),
     "timer-group" => new \EQT\Api\Controller\TimerGroupController($app),
-    'user' => new \EQT\Api\Controller\UserController($app)
+    'user' => new \EQT\Api\Controller\UserController($app),
+    'invitation' => new \EQT\Api\Controller\GroupInvitationController($app)
 ];
 
 $factory = $authController->connect($app);

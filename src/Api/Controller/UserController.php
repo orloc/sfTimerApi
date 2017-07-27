@@ -10,11 +10,14 @@ class UserController extends AbstractCRUDController implements ControllerProvide
     public function connect(Application $app)
     {
         $controllers = $app['controllers_factory'];
-        $controllers->get('', [$this, 'all']);
-        $controllers->get('/{id}', [$this, 'getBy']);
+        
+        /*
+        $controllers->get('user', [$this, 'all']);
+        $controllers->get('user/{id}', [$this, 'getBy']);
 
-        $controllers->post('', [$this, 'create']);
-        $controllers->delete('/{id}', [$this, 'delete']);
+        $controllers->post('user', [$this, 'create']);
+        $controllers->delete('user/{id}', [$this, 'delete']);
+        */
 
         return $controllers;
     }
