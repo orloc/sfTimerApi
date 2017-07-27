@@ -32,14 +32,15 @@ class UserController extends AbstractCRUDController implements ControllerProvide
         if (!User::hasItem($this->db, [ 'id' => $userToken['id']])){
             $this->app->abort(404, 'User not found'); 
         }
-        
+
         $user = User::getBy($this->db, ['id' => $userToken['id']]);
-        $bList = array_flip(User::$serialization_black_list);
+        $data = Utility::mapRequest($user, $this->app['eqt.models.user'])->serialize();
         
-        $filtered = array_filter($user, function($v, $k) use ($bList) {
-            return !isset($bList[$k]);
-        }, ARRAY_FILTER_USE_BOTH);
+        return Utility::JsonResponse($data, Response::HTTP_OK);
+    }
+    
+    public function userUpdate(Request $request){
+        $userToken = $this->jwtAuthenticator->getCredentials($request);
         
-        return Utility::JsonResponse($filtered, Response::HTTP_OK);
     }
 }

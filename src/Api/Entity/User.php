@@ -32,7 +32,6 @@ class User extends AbstractEntity implements UserInterface {
     
     private $encoder_factory;
 
-
     static public function loadValidatorMetadata(ClassMetadata $metadata){
         $metadata->addPropertyConstraints('username',[new Assert\NotBlank()]);
         $metadata->addPropertyConstraints('profile_name',[new Assert\NotBlank()]);
@@ -66,7 +65,7 @@ class User extends AbstractEntity implements UserInterface {
     }
 
     public function getUpdateFields(){
-        return [];
+        return [ 'profile_name', 'email'];
     }
 
     public function update(Connection $db, $columns = []) {
@@ -115,6 +114,24 @@ class User extends AbstractEntity implements UserInterface {
     
     public function setRoles($roles){
         $this->roles = $roles;
+        return $this;
+    }
+    
+    public function getProfileName(){
+        return $this->profile_name;
+    }
+    
+    public function setProfileName($profileName){
+        $this->profile_name = $profileName;
+        return $this;
+    }
+    
+    public function getType(){
+        return $this->type;
+    }
+    
+    public function setType($type){
+        $this->type = $type;
         return $this;
     }
 
