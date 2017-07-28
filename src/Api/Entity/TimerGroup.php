@@ -80,6 +80,14 @@ class TimerGroup extends AbstractEntity {
         return $this;
     }
     
+    public static function getPrivileges(){
+        return [
+            'PRIVILEGE_OWNER' => self::PRIVILEGE_OWNER,
+            'PRIVILEGE_READ' => self::PRIVILEGE_READ,
+            'PRIVILEGE_WRITE' => self::PRIVILEGE_WRITE
+        ];
+    }
+    
     public static function isTimerOwner(Connection $db, $groupId, $timerId){
         $table = self::resolveTableName();
         $query = "select count(t.id) as 'exists'
@@ -90,6 +98,28 @@ class TimerGroup extends AbstractEntity {
         ";
         
         return $db->fetchAssoc($query, [ $groupId, $timerId]);
+    }
+
+    public static function getGroupMembers(Connection $db, $groupId){
+        $groupId = intval($groupId);
+        $query = "select data.* from (
+                    select u.profile_name, 
+                           utg.user_privilege as 'privilege', 
+                           true as 'approved'
+                    from users u
+                    join users_timer_groups utg on u.id=utg.user_id
+                    where utg.timer_group_id = ?
+                    UNION 
+                    select u.profile_name, 
+                           gi.permission_grant as 'privilege', 
+                           false as 'approved'
+                    from users u
+                    join group_invitations gi on u.id = gi.invitee_id
+                    where gi.group_id = ?
+                  ) as data
+                  order by data.approved";
+
+        return $db->fetchAll($query, [ $groupId , $groupId]);
     }
 
     private function createJoinRecord(Connection $db, $data){

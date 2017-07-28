@@ -3,15 +3,19 @@ namespace EQT\Api\Controller;
 
 use Doctrine\DBAL\Connection;
 use EQT\Api\Entity\Timer;
+use EQT\Api\Entity\TimerGroup;
+use EQT\Api\Utility;
 use Silex\Application;
 use Silex\Api\ControllerProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class TimerGroupController extends AbstractCRUDController implements ControllerProviderInterface {
 
     public function connect(Application $app){
         $controllers = $app['controllers_factory'];
         $controllers->get('/timer-group', [$this, 'all']);
+        $controllers->get('/timer-group/member', [$this, 'getTimerGroupMembers']);
 
         $controllers->post('/timer-group', [$this,'create']);
         $controllers->patch('/timer-group/{id}', [$this,'update']);
@@ -54,6 +58,16 @@ class TimerGroupController extends AbstractCRUDController implements ControllerP
         $request->request->replace(array_merge($content, [ 'created_by' => $user['id']]));
         
         return parent::create($request);
+    }
+    
+    public function getTimerGroupMembers(Request $request){
+        $group_id = $request->query->get('group_id');
+        if (!$group_id){
+            $this->app->abort(Response::HTTP_BAD_REQUEST, 'Invalid post body');
+            
+        }
+        $members = TimerGroup::getGroupMembers($this->db, $group_id);
+        return Utility::JsonResponse($members, Response::HTTP_OK);
     }
 
 }

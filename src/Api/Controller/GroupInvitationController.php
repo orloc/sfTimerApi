@@ -52,7 +52,7 @@ class GroupInvitationController extends AbstractCRUDController implements Contro
             'inviter_id' => $user['id'],
             'permission_grant' => $content['permission_grant']
         ];
-
+        
         $hasInvitation = GroupInvitation::hasItem($this->db, array_merge($entityMap, ['accepted' => null]));
         if ($hasInvitation){
             $this->app->abort(409, 'User already has a pending invitation');
