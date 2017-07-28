@@ -32,11 +32,11 @@ class GroupInvitationController extends AbstractCRUDController implements Contro
         $user = $this->jwtAuthenticator->getCredentials($request);
         $content = $request->request->all();
 
-        if (array_diff_key($content, array_flip(['group_id', 'profile_name']))){
+        if (array_diff_key($content, array_flip(['group_id', 'profile_name', 'permission_grant']))){
             $this->app->abort(400, 'Post body mismatch');
         }
         
-        if (!isset($content['profile_name']) || !User::hasItem($this->db, ['profile_name' => $content['profile_name'], 'deleted_at' => null])){
+        if (!isset($content['profile_name']) || !User::hasItem($this->db, ['profile_name' => $content['profile_name']])){
             $this->app->abort(404, 'User not found');
         }
 
@@ -50,9 +50,10 @@ class GroupInvitationController extends AbstractCRUDController implements Contro
             'group_id' => $content['group_id'],
             'invitee_id' => $invitee['id'],
             'inviter_id' => $user['id'],
+            'permission_grant' => $content['permission_grant']
         ];
 
-        $hasInvitation = GroupInvitation::hasItem($this->db, array_merge($entityMap, ['accepted' => null, 'deleted_at' => null]));
+        $hasInvitation = GroupInvitation::hasItem($this->db, array_merge($entityMap, ['accepted' => null]));
         if ($hasInvitation){
             $this->app->abort(409, 'User already has a pending invitation');
         }

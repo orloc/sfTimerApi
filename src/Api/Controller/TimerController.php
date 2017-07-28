@@ -24,8 +24,7 @@ class TimerController extends AbstractCRUDController implements ControllerProvid
     public function getTimersByGroup(Request $request, $timerGroup){
         $user = $this->jwtAuthenticator->getCredentials($request);
         // check user access to group 
-        
-        $filters = [ 'timer_group_id' => $timerGroup ];
+        $filters = [ 'timer_group_id' => $timerGroup, 'deleted_at' => null];
         return parent::all($request, $filters);
 
     }
