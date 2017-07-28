@@ -12,20 +12,10 @@ class GroupInvitationController extends AbstractCRUDController implements Contro
     public function connect(Application $app){
         $controllers = $app['controllers_factory'];
         
-        $controllers->get('/invitation', [$this, 'getInvitationsByUser']);
         $controllers->post('/invitation', [$this,'create']);
         $controllers->patch('/invitation/{id}', [$this,'update']);
 
         return $controllers;
-    }
-
-    public function getInvitationsByUser(Request $request, $timerGroup){
-        $user = $this->jwtAuthenticator->getCredentials($request);
-        // check user access to group 
-        $filters = [ 
-            'timer_group_id' => $timerGroup,
-        ];
-        return parent::all($request, $filters);
     }
 
     public function create(Request $request) {

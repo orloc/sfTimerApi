@@ -67,7 +67,11 @@ class TimerGroupController extends AbstractCRUDController implements ControllerP
             
         }
         $members = TimerGroup::getGroupMembers($this->db, $group_id);
-        return Utility::JsonResponse($members, Response::HTTP_OK);
+
+        return Utility::JsonResponse(array_map(function($d) {
+            $d['approved'] = boolval($d['approved']);
+            return $d;
+        }, $members), Response::HTTP_OK);
     }
 
 }
