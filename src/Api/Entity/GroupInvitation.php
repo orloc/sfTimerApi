@@ -24,6 +24,7 @@ class GroupInvitation extends AbstractEntity {
         $metadata->addPropertyConstraints('invitee_id',[new Assert\NotBlank()]);
         $metadata->addPropertyConstraints('permission_grant',[new Assert\NotBlank()]);
         $metadata->addPropertyConstraints('group_id',[new Assert\NotBlank()]);
+        
     }
 
     public function beforeSave(Connection $db) {

@@ -100,10 +100,11 @@ class TimerGroup extends AbstractEntity {
         return $db->fetchAssoc($query, [ $groupId, $timerId]);
     }
 
-    public static function getGroupMembers(Connection $db, $groupId){
+    public static function getGroupMembers(Connection $db, $groupId, $me = null){
         $groupId = intval($groupId);
         $query = "select data.* from (
                     select u.profile_name, 
+                           u.id,
                            utg.user_privilege as 'privilege', 
                            true as 'approved'
                     from users u
@@ -111,15 +112,25 @@ class TimerGroup extends AbstractEntity {
                     where utg.timer_group_id = ?
                     UNION 
                     select u.profile_name, 
+                           u.id,
                            gi.permission_grant as 'privilege', 
                            false as 'approved'
                     from users u
                     join group_invitations gi on u.id = gi.invitee_id
                     where gi.group_id = ?
-                  ) as data
-                  order by data.approved";
+                  ) as data ";
 
-        return $db->fetchAll($query, [ $groupId , $groupId]);
+        if ($me){
+            $query .= " where data.id != ?";
+        }
+
+        $query .= " order by data.approved";
+        
+        $params =  $me 
+            ?  [ $groupId, intval($groupId), intval($me)] 
+            :  [ $groupId, $groupId ];
+        
+        return $db->fetchAll($query, $params);
     }
 
     private function createJoinRecord(Connection $db, $data){

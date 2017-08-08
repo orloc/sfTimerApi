@@ -12,6 +12,8 @@ class SecurityControllerTest extends WebTestCase
 {
     protected static $db;
     
+    private $client = null;
+    
     public static function setUpBeforeClass(){
         $query = "delete from users;";
 
@@ -22,7 +24,7 @@ class SecurityControllerTest extends WebTestCase
         
         self::$db = $app['db'];
     }
-
+    
     public function testNullRegistration() {
         $client = $this->createClient();
 

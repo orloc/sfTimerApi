@@ -66,7 +66,10 @@ class TimerGroupController extends AbstractCRUDController implements ControllerP
             $this->app->abort(Response::HTTP_BAD_REQUEST, 'Invalid post body');
             
         }
-        $members = TimerGroup::getGroupMembers($this->db, $group_id);
+        
+        $user = $this->jwtAuthenticator->getCredentials($request);
+        
+        $members = TimerGroup::getGroupMembers($this->db, $group_id, $user['id']);
 
         return Utility::JsonResponse(array_map(function($d) {
             $d['approved'] = boolval($d['approved']);
