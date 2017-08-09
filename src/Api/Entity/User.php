@@ -17,11 +17,7 @@ class User extends AbstractEntity implements UserInterface {
     public static $serialization_black_list = [
         'password'
     ];
-    
-    public static $update_fields = [
-        'profile_name', 'email', 'id'
-    ];
-    
+
     protected $username;
     
     protected $profile_name;
@@ -44,6 +40,14 @@ class User extends AbstractEntity implements UserInterface {
         $metadata->addPropertyConstraints('type',[new Assert\NotBlank()]);
         $metadata->addPropertyConstraints('plain_password',[new Assert\NotBlank()]);
         $metadata->addPropertyConstraints('roles',[new Assert\NotBlank()]);
+    }
+    
+    static public function getUpdateConstraints(){
+        return new Assert\Collection([
+            'email' => [ new Assert\NotBlank(), new Assert\Email() ],
+            'profile_name' => new Assert\NotBlank(),
+            'id' => new Assert\NotBlank()
+        ]);
     }
     
     public function __construct(EncoderFactoryInterface $encoder){

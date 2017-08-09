@@ -70,7 +70,7 @@ abstract class AbstractCRUDController {
         return Utility::JsonResponse($entity->serialize(), Response::HTTP_CREATED);
     }
 
-    public function update(Request $request, $id){
+    public function update(Request $request, $id, $constraints = false){
         $class = $this->getEntityClass();
         $className = is_object($class) ? get_class($class) : $class;
         
@@ -78,8 +78,10 @@ abstract class AbstractCRUDController {
             $this->app->abort(Response::HTTP_NOT_FOUND, "{$className} {$id} not found");
         }
 
-        $entity = $this->validateInput(array_merge($request->request->all(), [ 'id' => $id]), 
-            is_object($class) ? $class : new $class()
+        $entity = $this->validateInput(
+            array_merge($request->request->all(), [ 'id' => $id]), 
+            is_object($class) ? $class : new $class(),
+            $constraints
         );
         
         $this->beforeUpdate($entity);
@@ -106,9 +108,14 @@ abstract class AbstractCRUDController {
         return Utility::JsonResponse([ 'id' => $id ], Response::HTTP_OK);
     }
 
-    protected function validateInput(Array $body, $object){
-        $object = Utility::mapRequest($body, $object);
-        $errors = Utility::handleValidationErrors($this->app['validator']->validate($object));
+    protected function validateInput(Array $body, $object, $constraints = false){
+        if (!$constraints){
+            $object = Utility::mapRequest($body, $object);
+            $errors = Utility::handleValidationErrors($this->app['validator']->validate($object));
+        } else {
+            $errors = Utility::handleValidationErrors($this->app['validator']->validate($body, $constraints));
+            $object = Utility::mapRequest($body, $object);
+        }
 
         if ($errors) {
             $this->app->abort(Response::HTTP_BAD_REQUEST, $errors);

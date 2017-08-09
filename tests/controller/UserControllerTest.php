@@ -70,6 +70,92 @@ class UserControllerTest extends WebTestCase
         $this->assertTrue($content['id'] === self::$user->getId());
         $this->assertTrue(!isset($content['password']));
     }
+    
+    public function testUserUpdateNoAuth(){
+        $client = $this->createClient();
+        $client->followRedirects(true);
+        $client->request('PATCH', '/api/v1/user', [], []);
+        
+        $resp = $client->getResponse();
+        $this->assertTrue($resp->getStatusCode() === 401);
+    }
+
+    public function testUserUpdateNullId() {
+        $client = $this->createClient();
+        $client->followRedirects(true);
+
+        $headers = $this->getAuthHeaders();
+
+        $nullId = [
+            'id' => null, 
+            'email' => 'things@stuff.com',
+            'profile_name' => 'meow'
+        ];
+        $client->request('PATCH', '/api/v1/user', [], [], $headers, json_encode($nullId));
+        $this->assertTrue($client->getResponse()->getStatusCode() === 401);
+    }
+
+    public function testUserUpdateNoExist() {
+        $client = $this->createClient();
+        $client->followRedirects(true);
+
+        $headers = $this->getAuthHeaders();
+        $nonExistantId = [
+            'id' => 33,
+            'email' => 'things@stuff.com',
+            'profile_name' => 'meow'
+        ];
+        
+        $client->request('PATCH', '/api/v1/user', [], [], $headers, json_encode($nonExistantId));
+        $this->assertTrue($client->getResponse()->getStatusCode() === 401);
+    }
+
+    public function testUserUpdateMissingId() {
+        $client = $this->createClient();
+        $client->followRedirects(true);
+
+        $headers = $this->getAuthHeaders();
+
+        $missingId = [
+            'email' => 'things@stuff.com',
+            'profile_name' => 'meow'
+        ];
+
+        $client->request('PATCH', '/api/v1/user', [], [], $headers, json_encode($missingId));
+        $this->assertTrue($client->getResponse()->getStatusCode() === 401);
+    }
+
+    public function testUserUpdateBadEmail() {
+        $client = $this->createClient();
+        $client->followRedirects(true);
+
+        $headers = $this->getAuthHeaders();
+
+        $invalidFields = [
+            'id' => self::$user->getId(),
+            'profile_name' => 'meow',
+            'email' => 'meow.com'
+        ];
+
+        $client->request('PATCH', '/api/v1/user', [], [], $headers, json_encode($invalidFields));
+        $this->assertTrue($client->getResponse()->isClientError());
+    }
+
+    public function testUserUpdate() {
+        $client = $this->createClient();
+        $client->followRedirects(true);
+
+        $headers = $this->getAuthHeaders();
+        
+        $missingFields = [
+            'id' => self::$user->getId(),
+            'profile_name' => 'meow',
+            'email' => 'meow@woof.com'
+        ];
+
+        $client->request('PATCH', '/api/v1/user', [], [], $headers, json_encode($missingFields));
+        $this->assertTrue($client->getResponse()->isSuccessful());
+    }
 
     public function getAuthHeaders(){
         $encoder = $this->app['eqt.jwt_encoder'];

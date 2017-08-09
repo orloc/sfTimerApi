@@ -21,10 +21,6 @@ class GroupInvitationController extends AbstractCRUDController implements Contro
     public function create(Request $request) {
         $user = $this->jwtAuthenticator->getCredentials($request);
         $content = $request->request->all();
-
-        if (array_diff_key($content, array_flip(['group_id', 'profile_name', 'permission_grant']))){
-            $this->app->abort(400, 'Post body mismatch');
-        }
         
         if (!isset($content['profile_name']) || !User::hasItem($this->db, ['profile_name' => $content['profile_name']])){
             $this->app->abort(404, 'User not found');

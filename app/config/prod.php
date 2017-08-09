@@ -35,7 +35,7 @@ $app['security.firewalls'] = [
         'anonymous' => true
     ],
     'main' => [
-        'pattern' => new RequestMatcher('^/api', null, ['POST', 'GET', 'DELETE', 'PUT']),
+        'pattern' => new RequestMatcher('^/api', null, ['POST', 'GET', 'DELETE', 'PATCH']),
         'logout' => [ 'logout_path' => '/logout' ],
         'guard' => [
             'authenticators' => [
