@@ -27,6 +27,13 @@ class GroupInvitation extends AbstractEntity {
         
     }
 
+    static public function getUpdateConstraints(){
+        return new Assert\Collection([
+            'profile_name' => new Assert\NotBlank(),
+            'id' => new Assert\NotBlank()
+        ]);
+    }
+
     public function beforeSave(Connection $db) {
         $this->created_at = new \DateTime();
     }
@@ -99,9 +106,5 @@ class GroupInvitation extends AbstractEntity {
     
     public function getAcceptedAt(){
         return $this->accepted_at;
-    }
-    
-    public static function getPendingInvitationsByUser(Connection $db, $user_id){
-         
     }
 }

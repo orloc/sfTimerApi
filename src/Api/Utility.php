@@ -40,7 +40,7 @@ class Utility {
         }
     }
     
-    public static function JsonResponse($data, $code, $serialize = true) {
+    public static function JsonResponse($data, $code = 200, $serialize = true) {
         if ($serialize) {
             try {
                 $json = json_encode($data);

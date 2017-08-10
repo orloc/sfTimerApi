@@ -164,4 +164,5 @@ class User extends AbstractEntity implements UserInterface {
     
     // Bcrypt has no salt
     public function getSalt(){ return; }
+
 }

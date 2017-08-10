@@ -123,7 +123,7 @@ abstract class AbstractEntity {
         }
     }
 
-    public static function all(Connection $db, $filtersArr = [], $order = []){
+    public static function all(Connection $db, array $filtersArr = [], array $order = []){
         $table = self::resolveTableName();
         
         list($filters, $values) = self::buildWhere($filtersArr);
@@ -131,6 +131,13 @@ abstract class AbstractEntity {
         $query = "select {$table}.* from {$table} where {$filters}";
 
         return $db->fetchAll($query, $values);
+    }
+    
+    public static function getIn(Connection $db, array $ids ){
+        $table = self::resolveTableName();
+        $query = "select * from {$table} where id in (?)";
+        $res = $db->executeQuery($query, [$ids], [Connection::PARAM_INT_ARRAY]);
+        return $res->fetchAll();
     }
 
     public static function getBy(Connection $db, $filtersArr = []){

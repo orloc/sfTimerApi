@@ -2,7 +2,9 @@
 namespace EQT\Api\Controller;
 
 use EQT\Api\Entity\GroupInvitation;
+use EQT\Api\Entity\TimerGroup;
 use EQT\Api\Entity\User;
+use EQT\Api\Utility;
 use Silex\Application;
 use Silex\Api\ControllerProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -51,9 +53,45 @@ class GroupInvitationController extends AbstractCRUDController implements Contro
     
     public function getMyInvitations(Request $request){
         $user = $this->jwtAuthenticator->getCredentials($request);
-        $invitations = GroupInvitation::getPendingInvitationsByUser($this->db, $user['id']);
+        $invitations = GroupInvitation::all($this->db, [
+            'invitee_id' => $user['id'],
+            'accepted_at' => null
+        ]);
+
+        $inviterIds = array_map(function($inv){
+            return intval($inv['inviter_id']);
+        }, $invitations);
+
+        $groupIds = array_map(function($inv){
+            return intval($inv['group_id']);
+        }, $invitations);
         
-        var_dump($invitations);die;
+        $users = array_map(function($u) {
+            return Utility::mapRequest($u, $this->app['eqt.models.user'])->serialize();
+        }, User::getIn($this->db, $inviterIds));
+        
+        $groups = array_map(function($g) {
+            return Utility::mapRequest($g, new TimerGroup())->serialize();
+        }, TimerGroup::getIn($this->db, $groupIds));
+        
+        $userRef = [];
+        $groupRef = [];
+
+        foreach ($groups as $item){
+            $groupRef[intval($item['id'])] = $item;
+        }
+        foreach ($users as $item){
+            $userRef[intval($item['id'])] = $item;
+        }
+        
+        $response = array_map(function($inv) use (&$userRef, &$groupRef){
+            return array_merge($inv, [
+                'user' => $userRef[$inv['inviter_id']],
+                'group' => $groupRef[$inv['group_id']]
+            ]) ;
+        }, $invitations);
+
+        return Utility::JsonResponse($response);
         
     }
 }
