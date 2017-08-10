@@ -11,8 +11,8 @@ class GroupInvitationController extends AbstractCRUDController implements Contro
 
     public function connect(Application $app){
         $controllers = $app['controllers_factory'];
-        
         $controllers->post('/invitation', [$this,'create']);
+        $controllers->get('/invitation', [$this,'getMyInvitations']);
         $controllers->patch('/invitation/{id}', [$this,'update']);
 
         return $controllers;
@@ -47,5 +47,13 @@ class GroupInvitationController extends AbstractCRUDController implements Contro
         $request->request->replace($entityMap);
 
         return parent::create($request);
+    }
+    
+    public function getMyInvitations(Request $request){
+        $user = $this->jwtAuthenticator->getCredentials($request);
+        $invitations = GroupInvitation::getPendingInvitationsByUser($this->db, $user['id']);
+        
+        var_dump($invitations);die;
+        
     }
 }

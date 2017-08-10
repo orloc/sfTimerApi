@@ -100,4 +100,8 @@ class GroupInvitation extends AbstractEntity {
     public function getAcceptedAt(){
         return $this->accepted_at;
     }
+    
+    public static function getPendingInvitationsByUser(Connection $db, $user_id){
+         
+    }
 }

@@ -133,6 +133,30 @@ class TimerGroup extends AbstractEntity {
         return $db->fetchAll($query, $params);
     }
 
+    public static function isGroupMember(Connection $db, $user_id, $group_id){
+        $exists = $db->executeQuery("
+              select count(*) as c 
+              from users_timer_groups 
+              where timer_group_id = ? and user_id = ?", 
+            [$group_id, $user_id]);
+        
+        return boolval($exists->fetchAll()[0]['c']);
+    }
+    
+    public static function deleteAssociatedTimers(Connection $db, array $existingTimers){
+        $ids = array_map(function($timer){
+            return intval($timer['id']);
+        }, $existingTimers);
+        
+        $query = "update timers set deleted_at=NOW() where id in (?)";
+        $db->executeQuery($query, [$ids], [Connection::PARAM_INT_ARRAY]);
+        
+    }
+    
+    public static function deleteAssociatedUsers(Connection $db, $timer_id){
+        $db->executeQuery("update users_timer_groups set deleted_at=NOW() where timer_group_id = ?", [$timer_id]);
+    }
+
     private function createJoinRecord(Connection $db, $data){
         $rowData = [
             'user_id' => $data->getCreatedBy(),
