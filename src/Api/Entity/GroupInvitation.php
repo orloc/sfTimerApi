@@ -7,31 +7,61 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class GroupInvitation extends AbstractEntity {
     
+    const STATUS_NEW = 0;
+    const STATUS_APPROVED = 1;
+    const STATUS_REJECTED = 2;
+    
     protected $inviter_id;
 
     protected $invitee_id;
     
     protected $group_id;
 
-    protected $accepted;
-    
     protected $permission_grant;
     
-    protected $accepted_at;
+    protected $actioned_at;
+    
+    protected $status;
 
     static public function loadValidatorMetadata(ClassMetadata $metadata){
         $metadata->addPropertyConstraints('inviter_id',[new Assert\NotBlank()]);
         $metadata->addPropertyConstraints('invitee_id',[new Assert\NotBlank()]);
         $metadata->addPropertyConstraints('permission_grant',[new Assert\NotBlank()]);
         $metadata->addPropertyConstraints('group_id',[new Assert\NotBlank()]);
-        
     }
 
     static public function getUpdateConstraints(){
         return new Assert\Collection([
-            'profile_name' => new Assert\NotBlank(),
+            'status' => new Assert\Choice(array_flip(self::getStatuses())),
             'id' => new Assert\NotBlank()
         ]);
+    }
+    
+    static public function getStatuses(){
+        return [
+            'NEW' => self::STATUS_NEW,
+            'APPROVED' => self::STATUS_APPROVED,
+            'REJECTED' => self::STATUS_REJECTED
+        ];
+    }
+    
+    public static function resolveStatus($status, $numToString = false){
+        $statuses = [
+            self::STATUS_NEW => 'NEW',
+            self::STATUS_APPROVED => 'APPROVED',
+            self::STATUS_REJECTED => 'REJECTED'
+        ];
+        
+        if ($numToString){
+            $statuses = array_flip($statuses);
+            $status = strtoupper($status);
+        } 
+        
+        if (!isset($statuses[$status])){
+            return -1;
+        }
+
+        return $statuses[$status];
     }
 
     public function beforeSave(Connection $db) {
@@ -51,7 +81,7 @@ class GroupInvitation extends AbstractEntity {
     }
 
     public function getUpdateFields(){
-        return ['accepted'];
+        return ['status', 'actioned_at'];
     }
 
     public function setInviterId($id){
@@ -90,21 +120,33 @@ class GroupInvitation extends AbstractEntity {
         return $this->group_id;
     }
     
-    public function setAccepted($accepted){
-        $this->accepted = $accepted;
+    public function getActionedAt(){
+        return $this->actioned_at;
+    }
+    
+    public function setActionedAt($actioned){
+        $this->actioned_at = $actioned;
         return $this;
     }
     
-    public function getAccepted(){
-        return $this->accepted;
+    public function getStatus(){
+        return intval($this->status);
     }
     
-    public function setAcceptedAt($acceptedAt){
-        $this->accepted_at = $acceptedAt;
+    public function setStatus($status){
+        if (is_string($status)){
+            if (strtoupper($status) === 'NEW'){
+                $status = self::STATUS_NEW; 
+            }
+            if (strtoupper($status) === 'APPROVED'){
+                $status = self::STATUS_APPROVED; 
+            }
+            if (strtoupper($status) === 'REJECTED'){
+                $status = self::STATUS_REJECTED; 
+            }
+        }
+        
+        $this->status = $status;
         return $this;
-    }
-    
-    public function getAcceptedAt(){
-        return $this->accepted_at;
     }
 }

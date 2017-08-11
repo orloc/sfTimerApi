@@ -47,7 +47,7 @@ abstract class AbstractEntity {
                 $ret[$p->getName()] = $ret[$p->getName()]->format(\DateTime::ISO8601);
             }
         }
-
+        
         return $ret;
     }
 
@@ -129,7 +129,7 @@ abstract class AbstractEntity {
         list($filters, $values) = self::buildWhere($filtersArr);
 
         $query = "select {$table}.* from {$table} where {$filters}";
-
+        
         return $db->fetchAll($query, $values);
     }
     

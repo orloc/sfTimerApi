@@ -1,6 +1,7 @@
 <?php
 namespace EQT\Api\Controller;
 
+use EQT\Api\Entity\AbstractEntity;
 use EQT\Api\Entity\GroupInvitation;
 use EQT\Api\Entity\TimerGroup;
 use EQT\Api\Entity\User;
@@ -15,6 +16,7 @@ class GroupInvitationController extends AbstractCRUDController implements Contro
         $controllers = $app['controllers_factory'];
         $controllers->post('/invitation', [$this,'create']);
         $controllers->get('/invitation', [$this,'getMyInvitations']);
+        $controllers->get('/invitation/check', [$this,'hasPendingInvitations']);
         $controllers->patch('/invitation/{id}', [$this,'update']);
 
         return $controllers;
@@ -33,15 +35,18 @@ class GroupInvitationController extends AbstractCRUDController implements Contro
         }
         
         $invitee = User::getBy($this->db, ['profile_name' => $content['profile_name']]);
+        
+        // check if user is already member of group
 
         $entityMap = [
             'group_id' => $content['group_id'],
             'invitee_id' => $invitee['id'],
             'inviter_id' => $user['id'],
+            'status' => GroupInvitation::STATUS_NEW,
             'permission_grant' => $content['permission_grant']
         ];
         
-        $hasInvitation = GroupInvitation::hasItem($this->db, array_merge($entityMap, ['accepted' => null]));
+        $hasInvitation = GroupInvitation::hasItem($this->db, $entityMap);
         if ($hasInvitation){
             $this->app->abort(409, 'User already has a pending invitation');
         }
@@ -51,11 +56,20 @@ class GroupInvitationController extends AbstractCRUDController implements Contro
         return parent::create($request);
     }
     
+    public function hasPendingInvitations(Request $request){
+        $user = $this->jwtAuthenticator->getCredentials($request);
+        $invitations = GroupInvitation::hasItem($this->db, [
+            'invitee_id' => $user['id'],
+            'status' => GroupInvitation::STATUS_NEW
+        ]);
+        
+        return Utility::JsonResponse([ 'has_invitations' => $invitations]);
+    }
+    
     public function getMyInvitations(Request $request){
         $user = $this->jwtAuthenticator->getCredentials($request);
         $invitations = GroupInvitation::all($this->db, [
-            'invitee_id' => $user['id'],
-            'accepted_at' => null
+            'invitee_id' => $user['id']
         ]);
 
         $inviterIds = array_map(function($inv){
@@ -92,6 +106,33 @@ class GroupInvitationController extends AbstractCRUDController implements Contro
         }, $invitations);
 
         return Utility::JsonResponse($response);
-        
+    }
+    
+    public function beforeUpdate(AbstractEntity $entity){
+        $time = new \DateTime();
+        $entity->setActionedAt($time->format('Y-m-d H:i:s'));
+    }
+    
+    public function afterUpdate(AbstractEntity $entity) {
+        $invite = Utility::mapRequest(GroupInvitation::getBy($this->db, ['id' => $entity->getId()]), new GroupInvitation());
+
+        if ($invite->getStatus() === GroupInvitation::STATUS_APPROVED){
+            TimerGroup::addMember($this->db, $invite); 
+        }
+    }
+
+    public function update(Request $request, $id, $constraints = false){
+        $user = $this->jwtAuthenticator->getCredentials($request);
+
+        // can update?
+        if (!GroupInvitation::hasItem($this->db, [
+            'id' => $id,
+            'invitee_id' => $user['id'],
+            'status' => GroupInvitation::STATUS_NEW
+        ])){
+            $this->app->abort(409, 'Already updated');
+        }
+
+        return parent::update($request, $id, GroupInvitation::getUpdateConstraints());
     }
 }

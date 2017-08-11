@@ -26,8 +26,7 @@ class TimerGroupController extends AbstractCRUDController implements ControllerP
     
     public function all(Request $request, $imposedFilters = []) {
         $user = $this->jwtAuthenticator->getCredentials($request);
-        
-        return parent::all($request, [ 'created_by' => $user['id'], 'deleted_at' => null]); 
+        return Utility::JsonResponse(TimerGroup::getAllTimerGroupsByUser($this->db, $user));
     }
 
     public function beforeDelete($id){
@@ -53,7 +52,7 @@ class TimerGroupController extends AbstractCRUDController implements ControllerP
         $user = $this->jwtAuthenticator->getCredentials($request);
         
         if (!$group_id){
-            $this->app->abort(Response::HTTP_BAD_REQUEST, 'Invalid post body');
+            $this->app->abort(Response::HTTP_BAD_REQUEST, 'Invalid query param');
         }
         
         if (!TimerGroup::isGroupMember($this->db, $user['id'], $group_id)){
@@ -63,7 +62,11 @@ class TimerGroupController extends AbstractCRUDController implements ControllerP
         $members = TimerGroup::getGroupMembers($this->db, $group_id, $user['id']);
 
         return Utility::JsonResponse(array_map(function($d) {
-            $d['approved'] = boolval($d['approved']);
+            if ($d['approved'] === 'true'){
+                $d['approved'] = boolval($d['approved']);
+            } else {
+                $d['approved'] = intval($d['approved']);
+            }
             return $d;
         }, $members), Response::HTTP_OK);
     }

@@ -80,12 +80,28 @@ class TimerGroup extends AbstractEntity {
         return $this;
     }
     
+    public function setDeletedAt($time){
+        $this->deleted_at = $time;
+    }
+    
     public static function getPrivileges(){
         return [
             'PRIVILEGE_OWNER' => self::PRIVILEGE_OWNER,
             'PRIVILEGE_READ' => self::PRIVILEGE_READ,
             'PRIVILEGE_WRITE' => self::PRIVILEGE_WRITE
         ];
+    }
+
+    public static function getAllTimerGroupsByUser(Connection $db, $user){
+        $table = self::resolveTableName();
+        $join = self::$join_table;
+        $query = "select tg.* from {$table} tg
+                  join {$join} utg on tg.id = utg.timer_group_id 
+                  where utg.user_id = ? 
+                  and utg.deleted_at is NULL
+                  and tg.deleted_at is NULL";
+        
+        return $db->fetchAll($query, [ $user['id']]);
     }
     
     public static function isTimerOwner(Connection $db, $groupId, $timerId){
@@ -102,33 +118,24 @@ class TimerGroup extends AbstractEntity {
 
     public static function getGroupMembers(Connection $db, $groupId, $me = null){
         $groupId = intval($groupId);
-        $query = "select data.* from (
-                    select u.profile_name, 
-                           u.id,
-                           utg.user_privilege as 'privilege', 
-                           true as 'approved'
-                    from users u
-                    join users_timer_groups utg on u.id=utg.user_id
-                    where utg.timer_group_id = ?
-                    UNION 
-                    select u.profile_name, 
-                           u.id,
-                           gi.permission_grant as 'privilege', 
-                           false as 'approved'
-                    from users u
-                    join group_invitations gi on u.id = gi.invitee_id
-                    where gi.group_id = ?
-                  ) as data ";
+        $query = "select u.profile_name, 
+                  u.id,
+                  gi.permission_grant as 'privilege', 
+                  gi.actioned_at as 'created',
+                  gi.status as 'approved'
+                  from users u
+                  join group_invitations gi on u.id = gi.invitee_id
+                  where gi.group_id = ?";
 
         if ($me){
-            $query .= " where data.id != ?";
+            $query .= " and u.id != ?";
         }
 
-        $query .= " order by data.approved";
+        $query .= " order by approved";
         
         $params =  $me 
-            ?  [ $groupId, intval($groupId), intval($me)] 
-            :  [ $groupId, $groupId ];
+            ?  [ intval($groupId), intval($me)]
+            :  [ $groupId ];
         
         return $db->fetchAll($query, $params);
     }
@@ -155,6 +162,21 @@ class TimerGroup extends AbstractEntity {
     
     public static function deleteAssociatedUsers(Connection $db, $timer_id){
         $db->executeQuery("update users_timer_groups set deleted_at=NOW() where timer_group_id = ?", [$timer_id]);
+    }
+    
+    public static function addMember(Connection $db, GroupInvitation $invitation) {
+        $data = [
+            'user_id' => intval($invitation->getInviteeId()),
+            'timer_group_id' => intval($invitation->getGroupId()),
+            'created_at' => new \DateTime(),
+            'user_privilege' => $invitation->getPermissionGrant()
+        ];
+        
+        try {
+            $db->insert(self::$join_table, $data, [ 'created_at' => 'datetime'] );
+        } catch (ConstraintViolationException $e) {
+            throw new ConflictHttpException($e->getMessage(), $e);
+        }
     }
 
     private function createJoinRecord(Connection $db, $data){
