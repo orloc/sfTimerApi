@@ -31,7 +31,7 @@ class TimerGroupController extends AbstractCRUDController implements ControllerP
 
     public function beforeDelete($id){
         $existingTimers = Timer::all($this->db, ['timer_group_id' => $id, 'deleted_at' => null]);
-        TimerGroup::deleteAssociatedTimers($this->db, $existingTimers); 
+        TimerGroup::deleteAssociatedTimers($this->db, $existingTimers);
     }
     
     public function afterDelete($id) {
