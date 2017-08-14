@@ -135,23 +135,12 @@ class UserControllerTest extends WebTestCase
             'name' => null
         ];
 
-        $better = [
-            'name' => 'groupone',
-            'description' => null
-        ];
-
         $id = self::$timer['id'];
 
         $client->request('PATCH', "/api/v1/timer-group/{$id}", [], [], $headers, json_encode($data));
         $resp = $client->getResponse();
         
-        var_dump($resp->getContent());die;
         $this->assertTrue($resp->isClientError());
-
-        $client->request('PATCH', "/api/v1/timer-group/{$id}", [], [], $headers, json_encode($better));
-        $resp = $client->getResponse();
-        $this->assertTrue($resp->isClientError());
-
     }
     
     public function testGoodUpdate(){
@@ -161,7 +150,7 @@ class UserControllerTest extends WebTestCase
         $headers = $this->getAuthHeaders();
 
         $better = [
-            'name' => 'groupone',
+            'name' => 'grouponessss',
             'description' => null
         ];
 
@@ -169,89 +158,40 @@ class UserControllerTest extends WebTestCase
 
         $client->request('PATCH', "/api/v1/timer-group/{$id}", [], [], $headers, json_encode($better));
         $resp = $client->getResponse();
-        $this->assertTrue($resp->isSuccessful()s());
+        $this->assertTrue($resp->isSuccessful());
     }
     
-    /*
-
-    public function testUserUpdateNullId() {
+    public function testBadGetTimerGroupMembers(){
         $client = $this->createClient();
         $client->followRedirects(true);
 
         $headers = $this->getAuthHeaders();
 
-        $nullId = [
-            'id' => null, 
-            'email' => 'things@stuff.com',
-            'profile_name' => 'meow'
-        ];
-        $client->request('PATCH', '/api/v1/user', [], [], $headers, json_encode($nullId));
-        $this->assertTrue($client->getResponse()->getStatusCode() === 401);
-    }
+        $client->request('GET', "/api/v1/timer-group/member", [], [], $headers);
+        $resp = $client->getResponse();
+        $this->assertTrue($resp->isClientError());
 
-    public function testUserUpdateNoExist() {
-        $client = $this->createClient();
-        $client->followRedirects(true);
-
-        $headers = $this->getAuthHeaders();
-        $nonExistantId = [
-            'id' => 33,
-            'email' => 'things@stuff.com',
-            'profile_name' => 'meow'
-        ];
+        $client->request('GET', "/api/v1/timer-group/member?group_id=999999999", [], [], $headers);
+        $resp = $client->getResponse();
+        $this->assertTrue($resp->getStatusCode() === 401);
         
-        $client->request('PATCH', '/api/v1/user', [], [], $headers, json_encode($nonExistantId));
-        $this->assertTrue($client->getResponse()->getStatusCode() === 401);
     }
 
-    public function testUserUpdateMissingId() {
+    public function testGoodGetTimerGroupMembers(){
         $client = $this->createClient();
         $client->followRedirects(true);
 
         $headers = $this->getAuthHeaders();
+        $id = self::$timer['id'];
 
-        $missingId = [
-            'email' => 'things@stuff.com',
-            'profile_name' => 'meow'
-        ];
-
-        $client->request('PATCH', '/api/v1/user', [], [], $headers, json_encode($missingId));
-        $this->assertTrue($client->getResponse()->getStatusCode() === 401);
-    }
-
-    public function testUserUpdateBadEmail() {
-        $client = $this->createClient();
-        $client->followRedirects(true);
-
-        $headers = $this->getAuthHeaders();
-
-        $invalidFields = [
-            'id' => self::$user->getId(),
-            'profile_name' => 'meow',
-            'email' => 'meow.com'
-        ];
-
-        $client->request('PATCH', '/api/v1/user', [], [], $headers, json_encode($invalidFields));
-        $this->assertTrue($client->getResponse()->isClientError());
-    }
-
-    public function testUserUpdate() {
-        $client = $this->createClient();
-        $client->followRedirects(true);
-
-        $headers = $this->getAuthHeaders();
+        $client->request('GET', "/api/v1/timer-group/member?group_id={$id}", [], [], $headers);
+        $resp = $client->getResponse();
         
-        $missingFields = [
-            'id' => self::$user->getId(),
-            'profile_name' => 'meow',
-            'email' => 'meow@woof.com'
-        ];
+        $this->assertTrue($resp->isSuccessful());
+        $this->assertTrue(count(json_decode($resp->getContent(), true)) === 0);
 
-        $client->request('PATCH', '/api/v1/user', [], [], $headers, json_encode($missingFields));
-        $this->assertTrue($client->getResponse()->isSuccessful());
     }
-    */
-
+    
     public function getAuthHeaders(){
         $encoder = $this->app['eqt.jwt_encoder'];
         $token = $encoder->encode(self::$user);
