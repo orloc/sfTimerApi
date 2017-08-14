@@ -12,7 +12,7 @@ if (!class_exists('\PHPUnit\Framework\TestCase', true)) {
     class_alias('\PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
 }
 
-class UserControllerTest extends WebTestCase
+class TimerGroupControllerTest extends WebTestCase
 {
     
     private static $db;
@@ -48,6 +48,19 @@ class UserControllerTest extends WebTestCase
 
         self::$db = $app['db'];
         self::$user = Utility::mapRequest(self::$db->fetchAll('select * from users limit 1')[0], $app['eqt.models.user']);
+    }
+
+    public static function tearDownAfterClass(){
+        $queries = [
+            "delete from users_timer_groups;",
+            "delete from users;",
+            "delete from timer_groups;"
+        ];
+
+        foreach ($queries as $q){
+            self::$db->executeQuery($q);
+        }
+
     }
 
     public function testAllWithNone(){
@@ -100,7 +113,7 @@ class UserControllerTest extends WebTestCase
         $this->assertTrue(intval($content['created_by']) === intval(self::$user->getId()));
         $this->assertTrue($content['name'] === 'groupone');
         
-        $q = self::$db->executeQuery("select * from users_timer_groups");
+        $q = self::$db->executeQuery("select * from users_timer_groups where deleted_at is null");
         $result = $q->fetchAll();
         
         $this->assertTrue(count($result) === 1);
@@ -189,7 +202,42 @@ class UserControllerTest extends WebTestCase
         
         $this->assertTrue($resp->isSuccessful());
         $this->assertTrue(count(json_decode($resp->getContent(), true)) === 0);
+    }
+    
+    public function testDeleteNotExists(){
 
+        $client = $this->createClient();
+        $client->followRedirects(true);
+
+        $headers = $this->getAuthHeaders();
+
+
+        $client->request('DELETE', "/api/v1/timer-group/0", [], [], $headers);
+        $resp = $client->getResponse();
+        $this->assertTrue($resp->isNotFound());
+    }
+
+    public function testDelete(){
+
+        $client = $this->createClient();
+        $client->followRedirects(true);
+
+        $headers = $this->getAuthHeaders();
+        $id = self::$timer['id'];
+        
+        $client->request('DELETE', "/api/v1/timer-group/{$id}", [], [], $headers);
+        $resp = $client->getResponse();
+        
+        $this->assertTrue($resp->isSuccessful());
+
+        $q = self::$db->executeQuery("select * from users_timer_groups where deleted_at is null");
+        $result = $q->fetchAll();
+        $this->assertTrue(count($result) === 0);
+
+        $q = self::$db->executeQuery("select * from timer_groups where deleted_at is null");
+        $result = $q->fetchAll();
+
+        $this->assertTrue(count($result) === 0);
     }
     
     public function getAuthHeaders(){

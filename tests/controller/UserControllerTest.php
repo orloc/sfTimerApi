@@ -12,7 +12,7 @@ if (!class_exists('\PHPUnit\Framework\TestCase', true)) {
     class_alias('\PHPUnit\Framework\TestCase', '\PHPUnit_Framework_TestCase');
 }
 
-class UserControllerTest extends WebTestCase
+class UserControllerTest extends WebTestCase  
 {
     
     private static $db;
@@ -45,6 +45,16 @@ class UserControllerTest extends WebTestCase
 
         self::$db = $app['db'];
         self::$user = Utility::mapRequest(self::$db->fetchAll('select * from users limit 1')[0], $app['eqt.models.user']);
+    }
+    
+    public static function tearDownAfterClass(){
+        $queries = [
+            "delete from users;"
+        ];
+
+        foreach ($queries as $q){
+            self::$db->executeQuery($q);
+        }
     }
 
     public function testGetMeNoAuth() {
