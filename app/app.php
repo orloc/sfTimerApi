@@ -4,7 +4,9 @@ ini_set('error_log', __DIR__.'/../var/logs/php_error.log');
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+
 use EQT\Api\Utility;
+use \EQT\MessageBuffer\ZMQConnect;
 
 $app = new Application();
 
@@ -48,25 +50,16 @@ $app->after(function(Request $request, Response $response){
 });
 
 $app->finish(function(Request $request, Response $response) use ($app) {
-    $positiveCode = $response->getStatusCode() < 300;
-    $privilegedRoute = !in_array($request->get('_route'), [
-        'POST_login',
-        'POST_register'
-    ]);
-    $validMethod = in_array($request->getMethod(), ['POST', 'PATCH', 'DELETE']);
-    
-    if( $positiveCode && $privilegedRoute && $validMethod) {
+    if(ZMQConnect::isRequestValid($request, $response)) {
         $app['monolog']->info(sprintf("Sending message '%s' to zmq from %s", 
             $response->getContent(), 
             $request->get('_route')
         ));
         
         $user = $app['eqt.jwt_authenticator']->getCredentials($request);
-        
-        $context = new ZMQContext();
-        $socket = $context->getSocket(ZMQ::SOCKET_PUSH);
-        $socket->connect("tcp://127.0.0.1:5555");
-        
+
+        $socket = ZMQConnect::getSocket();
+
         $message = [
             'route' => $request->get('_route'),
             'method' => $request->getMethod(),
