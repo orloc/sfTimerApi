@@ -47,26 +47,36 @@ $app->after(function(Request $request, Response $response){
     
 });
 
-
-/*
 $app->finish(function(Request $request, Response $response) use ($app) {
     $positiveCode = $response->getStatusCode() < 300;
     $privilegedRoute = !in_array($request->get('_route'), [
-        'POST_login'
+        'POST_login',
+        'POST_register'
     ]);
     $validMethod = in_array($request->getMethod(), ['POST', 'PATCH', 'DELETE']);
     
     if( $positiveCode && $privilegedRoute && $validMethod) {
-        $app['monolog']->info(sprintf("Sending message '%s' to zmq", $response->getContent()));
-
-        $sockId = 'myId';
+        $app['monolog']->info(sprintf("Sending message '%s' to zmq from %s", 
+            $response->getContent(), 
+            $request->get('_route')
+        ));
+        
+        $user = $app['eqt.jwt_authenticator']->getCredentials($request);
+        
         $context = new ZMQContext();
-        $socket = $context->getSocket(ZMQ::SOCKET_PUSH, $sockId);
-        $socket->connect("tcp://localhost:5555");
-        $socket->send($response->getContent());
+        $socket = $context->getSocket(ZMQ::SOCKET_PUSH);
+        $socket->connect("tcp://127.0.0.1:5555");
+        
+        $message = [
+            'route' => $request->get('_route'),
+            'method' => $request->getMethod(),
+            'acting_user' => json_encode($user),
+            'body' => json_decode($response->getContent(), true)
+        ];
+        
+        $socket->send(json_encode($message));
     }
 });
-*/
 
 $app->error(function (\Exception $e, Request $request, $code) use ($app) {
     return Utility::JsonResponse(Utility::formatError($e->getMessage(), $code), $code, true);
