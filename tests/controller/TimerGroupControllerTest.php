@@ -69,7 +69,7 @@ class TimerGroupControllerTest extends WebTestCase
 
         $headers = $this->getAuthHeaders();
 
-        $client->request('GET', '/api/v1/timer-group', [], [], $headers);
+        $client->request('GET', '/api/v1/timergroup', [], [], $headers);
         $resp = $client->getResponse();
         
         $this->assertTrue($resp->isSuccessful());
@@ -89,7 +89,7 @@ class TimerGroupControllerTest extends WebTestCase
             'name' => null
         ];
 
-        $client->request('POST', '/api/v1/timer-group', [], [], $headers, json_encode($nullId));
+        $client->request('POST', '/api/v1/timergroup', [], [], $headers, json_encode($nullId));
         $resp = $client->getResponse();
         $this->assertTrue($resp->isClientError());
     }
@@ -104,7 +104,7 @@ class TimerGroupControllerTest extends WebTestCase
             'name' => 'groupone'
         ];
 
-        $client->request('POST', '/api/v1/timer-group', [], [], $headers, json_encode($data));
+        $client->request('POST', '/api/v1/timergroup', [], [], $headers, json_encode($data));
         $resp = $client->getResponse();
         $this->assertTrue($resp->isSuccessful());
         
@@ -128,7 +128,7 @@ class TimerGroupControllerTest extends WebTestCase
 
         $headers = $this->getAuthHeaders();
 
-        $client->request('GET', '/api/v1/timer-group', [], [], $headers);
+        $client->request('GET', '/api/v1/timergroup', [], [], $headers);
         $resp = $client->getResponse();
         $this->assertTrue($resp->isSuccessful());
         
@@ -150,7 +150,7 @@ class TimerGroupControllerTest extends WebTestCase
 
         $id = self::$timer['id'];
 
-        $client->request('PATCH', "/api/v1/timer-group/{$id}", [], [], $headers, json_encode($data));
+        $client->request('PATCH', "/api/v1/timergroup/{$id}", [], [], $headers, json_encode($data));
         $resp = $client->getResponse();
         
         $this->assertTrue($resp->isClientError());
@@ -169,7 +169,7 @@ class TimerGroupControllerTest extends WebTestCase
 
         $id = self::$timer['id'];
 
-        $client->request('PATCH', "/api/v1/timer-group/{$id}", [], [], $headers, json_encode($better));
+        $client->request('PATCH', "/api/v1/timergroup/{$id}", [], [], $headers, json_encode($better));
         $resp = $client->getResponse();
         $this->assertTrue($resp->isSuccessful());
     }
@@ -180,11 +180,11 @@ class TimerGroupControllerTest extends WebTestCase
 
         $headers = $this->getAuthHeaders();
 
-        $client->request('GET', "/api/v1/timer-group/member", [], [], $headers);
+        $client->request('GET', "/api/v1/timergroup/member", [], [], $headers);
         $resp = $client->getResponse();
         $this->assertTrue($resp->isClientError());
 
-        $client->request('GET', "/api/v1/timer-group/member?group_id=999999999", [], [], $headers);
+        $client->request('GET', "/api/v1/timergroup/member?group_id=999999999", [], [], $headers);
         $resp = $client->getResponse();
         $this->assertTrue($resp->getStatusCode() === 401);
         
@@ -197,7 +197,7 @@ class TimerGroupControllerTest extends WebTestCase
         $headers = $this->getAuthHeaders();
         $id = self::$timer['id'];
 
-        $client->request('GET', "/api/v1/timer-group/member?group_id={$id}", [], [], $headers);
+        $client->request('GET', "/api/v1/timergroup/member?group_id={$id}", [], [], $headers);
         $resp = $client->getResponse();
         
         $this->assertTrue($resp->isSuccessful());
@@ -212,7 +212,7 @@ class TimerGroupControllerTest extends WebTestCase
         $headers = $this->getAuthHeaders();
 
 
-        $client->request('DELETE', "/api/v1/timer-group/0", [], [], $headers);
+        $client->request('DELETE', "/api/v1/timergroup/0", [], [], $headers);
         $resp = $client->getResponse();
         $this->assertTrue($resp->isNotFound());
     }
@@ -225,7 +225,7 @@ class TimerGroupControllerTest extends WebTestCase
         $headers = $this->getAuthHeaders();
         $id = self::$timer['id'];
         
-        $client->request('DELETE', "/api/v1/timer-group/{$id}", [], [], $headers);
+        $client->request('DELETE', "/api/v1/timergroup/{$id}", [], [], $headers);
         $resp = $client->getResponse();
         
         $this->assertTrue($resp->isSuccessful());
