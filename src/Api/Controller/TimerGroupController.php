@@ -14,12 +14,12 @@ class TimerGroupController extends AbstractCRUDController implements ControllerP
 
     public function connect(Application $app){
         $controllers = $app['controllers_factory'];
-        $controllers->get('/timer-group', [$this, 'all']);
-        $controllers->get('/timer-group/member', [$this, 'getTimerGroupMembers']);
+        $controllers->get('/timergroup', [$this, 'all']);
+        $controllers->get('/timergroup/member', [$this, 'getTimerGroupMembers']);
 
-        $controllers->post('/timer-group', [$this,'create']);
-        $controllers->patch('/timer-group/{id}', [$this,'update']);
-        $controllers->delete('/timer-group/{id}', [$this, 'delete']);
+        $controllers->post('/timergroup', [$this,'create']);
+        $controllers->patch('/timergroup/{id}', [$this,'update']);
+        $controllers->delete('/timergroup/{id}', [$this, 'delete']);
 
         return $controllers;
     }
