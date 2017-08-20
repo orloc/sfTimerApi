@@ -52,6 +52,7 @@ class ZMQConnect {
             'entity' => $entity,
             'action' => $action,
             'acting_user' => json_encode($user),
+            'message_sent' => new \DateTime(),
             'content' => json_decode($response->getContent(), true)
         ]);
     }
