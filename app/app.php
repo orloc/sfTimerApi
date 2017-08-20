@@ -57,17 +57,8 @@ $app->finish(function(Request $request, Response $response) use ($app) {
         ));
         
         $user = $app['eqt.jwt_authenticator']->getCredentials($request);
-
         $socket = ZMQConnect::getSocket();
-
-        $message = [
-            'route' => $request->get('_route'),
-            'method' => $request->getMethod(),
-            'acting_user' => json_encode($user),
-            'body' => json_decode($response->getContent(), true)
-        ];
-        
-        $socket->send(json_encode($message));
+        $socket->send(ZMQConnect::package($user, $request, $response));
     }
 });
 
