@@ -33,13 +33,15 @@ class ZMQConnect {
         $resource = explode('_',$request->get('_route'));
         $action = self::getAction(array_shift($resource));
         $entity = false;
+        
         while(!$entity){
-            $next = array_shift($resource);
+            $next = array_pop($resource);
             
             if ($next === null) break;
-            
+            if (is_numeric($next)) continue;
             if (in_array($next, ['timergroup', 'timer', 'invitation '])){
                 $entity = $next;
+                break;
             }
         }
         
