@@ -50,7 +50,7 @@ $app->after(function(Request $request, Response $response){
 });
 
 $app->finish(function(Request $request, Response $response) use ($app) {
-    if($_ENV['TEST_ENV'] === true) {
+    if(isset($_ENV['TEST_ENV']) && $_ENV['TEST_ENV'] === true) {
        return; 
     }
     
