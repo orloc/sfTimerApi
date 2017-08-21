@@ -13,6 +13,8 @@ $app->register(new Silex\Provider\SecurityServiceProvider());
 $app->register(new DoctrineServiceProvider());
 $app->register(new CorsServiceProvider(), [
     'cors.allowOrigin' => [
+        'http://eqtimers.orloc.me',
+        'eqtimers.orloc.me',
         'localhost:9000',
         'http://localhost:9000'
     ]
