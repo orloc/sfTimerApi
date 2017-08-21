@@ -52,10 +52,24 @@ class GroupInvitationController extends AbstractCRUDController implements Contro
         }
 
         $request->request->replace($entityMap);
+        $response = parent::create($request);
+        
+        $content = json_decode($response->getContent(), true);
+        
+        $userQ = User::getBy($this->db, ['id' => $user['id']]);
+        $groupQ = TimerGroup::getBy($this->db, ['id' => $entityMap['group_id']]);
 
-        return parent::create($request);
+        $user = Utility::mapRequest($userQ, $this->app['eqt.models.user'])->serialize();
+        $group = Utility::mapRequest($groupQ, new TimerGroup())->serialize();
+        
+        
+        $content['user'] = $user;
+        $content['group'] = $group;
+        $response->setContent(json_encode($content));
+        
+        return $response;
     }
-    
+
     public function hasPendingInvitations(Request $request){
         $user = $this->jwtAuthenticator->getCredentials($request);
         $invitations = GroupInvitation::hasItem($this->db, [

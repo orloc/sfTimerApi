@@ -50,6 +50,10 @@ $app->after(function(Request $request, Response $response){
 });
 
 $app->finish(function(Request $request, Response $response) use ($app) {
+    if($_ENV['TEST_ENV'] === true) {
+       return; 
+    }
+    
     if(ZMQConnect::isRequestValid($request, $response)) {
         $app['monolog']->info(sprintf("Sending message '%s' to zmq from %s", 
             $response->getContent(), 
@@ -58,7 +62,11 @@ $app->finish(function(Request $request, Response $response) use ($app) {
         
         $user = $app['eqt.jwt_authenticator']->getCredentials($request);
         $socket = ZMQConnect::getSocket();
-        $socket->send(ZMQConnect::package($user, $request, $response));
+        try {
+            $socket->send(ZMQConnect::package($user, $request, $response));
+        } catch (\Exception $e){
+            $app['monolog']->info(sprintf('Error while packaging message %s', $e->getMessage()));
+        }
     }
 });
 

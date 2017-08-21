@@ -90,7 +90,7 @@ class GroupInvitation extends AbstractEntity {
     }
     
     public function getInviterId(){
-        return $this->invitee_id;
+        return $this->inviter_id;
     }
     
     public function getPermissionGrant(){

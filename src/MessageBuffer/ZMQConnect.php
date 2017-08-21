@@ -39,12 +39,12 @@ class ZMQConnect {
             
             if ($next === null) break;
             if (is_numeric($next)) continue;
-            if (in_array($next, ['timergroup', 'timer', 'invitation '])){
+            if (in_array($next, ['timergroup', 'timer', 'invitation'])){
                 $entity = $next;
                 break;
             }
         }
-        
+
         if (!$entity){
             // log some shit but dont continue
             throw new \Exception('Unable to find valid entity map');
