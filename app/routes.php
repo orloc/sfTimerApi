@@ -3,6 +3,7 @@
 $prefix = $app['eqt.api.prefix'];
 
 $authController = new \EQT\Api\Controller\SecurityController($app);
+$defaultController = new \EQT\Api\Controller\DefaultController($app);
 
 $controllers = [
     "timer" => new \EQT\Api\Controller\TimerController($app),
@@ -11,8 +12,10 @@ $controllers = [
     'invitation' => new \EQT\Api\Controller\GroupInvitationController($app)
 ];
 
-$factory = $authController->connect($app);
-$app->mount('', $factory);
+$auth = $authController->connect($app);
+$default = $defaultController->connect($app);
+$app->mount('', $auth);
+$app->mount('', $default);
 
 foreach ($controllers as $k => $c) {
     $factory = $c->connect($app);
